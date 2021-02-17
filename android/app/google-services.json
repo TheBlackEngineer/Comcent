@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "554416616811",
+    "project_id": "comcent-release",
+    "storage_bucket": "comcent-release.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554416616811:android:d0b5d8147ea1dae22fc82e",
+        "android_client_info": {
+          "package_name": "com.example.comcent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "554416616811-irdjkmfiqgicbnn9lufbb2jofjp0bk2o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.comcent",
+            "certificate_hash": "9bfbe2027c5ba9f97b0e2c0d20114c6e81f60ca7"
+          }
+        },
+        {
+          "client_id": "554416616811-h7a5p7bd8paami34ennuittk304ibt6v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKiSnO4M9uQZVYSBtITIWf3QrgVG2ICmw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "554416616811-h7a5p7bd8paami34ennuittk304ibt6v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

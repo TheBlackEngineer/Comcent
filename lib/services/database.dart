@@ -258,12 +258,12 @@ class FirestoreService {
   // ---------------------------------------------------------------------------
 
   // delete image from firebase storage
-  static Future deleteFile(
-      {@required String fileName,
-      @required String fileType,
-      String clubID,
-      }) async {
-    StorageReference firebaseStorageRef;
+  static Future deleteFile({
+    @required String fileName,
+    @required String fileType,
+    String clubID,
+  }) async {
+    Reference firebaseStorageRef;
 
     if (fileType == 'Profile') {
       firebaseStorageRef =

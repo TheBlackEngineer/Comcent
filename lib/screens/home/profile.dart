@@ -92,7 +92,7 @@ class _ProfileState extends State<Profile> {
 
                 //SizedBox(height: 18.0),
 
-                // username, occupaton, location, bio
+                // username, occupation, location, bio
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: Column(
@@ -121,11 +121,23 @@ class _ProfileState extends State<Profile> {
                       SizedBox(height: 5.0),
 
                       // occupation and location/sub community
-                      Text(
-                        profileOwner.occupation +
-                            ', ' +
-                            profileOwner.subCommunity,
-                        style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                      RichText(
+                        text: TextSpan(
+                            style:
+                                TextStyle(fontSize: 16.0, color: Colors.grey),
+                            text: profileOwner.occupation != null
+                                ? profileOwner.occupation
+                                : '',
+                            children: [
+                              TextSpan(
+                                text: profileOwner.occupation != null
+                                    ? ', '
+                                    : ' ',
+                              ),
+                              TextSpan(
+                                text: profileOwner.subCommunity,
+                              ),
+                            ]),
                       ),
 
                       SizedBox(height: 12.0),
@@ -147,7 +159,7 @@ class _ProfileState extends State<Profile> {
 
                 // number of posts, community involvement, follow button
                 Container(
-                  height: 41.0,
+                  height: 50.0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,

@@ -173,18 +173,20 @@ class _GettingStartedState extends State<GettingStarted> {
 
           // next
           this.community != null && controller.text.isNotEmpty
-              ? GradientButton(
-                  label: 'Next',
-                  onPressed: () {
-                    // go to forms
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => SignUp(),
-                        ));
-                  },
-                )
-              : DeadButton(label: 'Next')
+              ? SafeArea(
+                child: GradientButton(
+                    label: 'Next',
+                    onPressed: () {
+                      // go to forms
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (context) => SignUp(),
+                          ));
+                    },
+                  ),
+              )
+              : SafeArea(child: DeadButton(label: 'Next'))
         ],
       ),
     );

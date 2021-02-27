@@ -90,21 +90,25 @@ class _InterestsPageState extends State<InterestsPage> {
 
           // sign up/next button
           selectedIndexList.isNotEmpty
-              ? GradientButton(
-                  label: provider.signingUpAsMember ? 'Sign Up' : 'Next',
-                  onPressed: () {
-                    provider.signingUpAsMember
-                        ? _validateAndSignUp()
-                        : Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (context) => ReferrerPage(),
-                            ));
-                  },
-                )
-              : DeadButton(
-                  label: provider.signingUpAsMember ? 'Sign Up' : 'Next',
-                ),
+              ? SafeArea(
+                child: GradientButton(
+                    label: provider.signingUpAsMember ? 'Sign Up' : 'Next',
+                    onPressed: () {
+                      provider.signingUpAsMember
+                          ? _validateAndSignUp()
+                          : Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (context) => ReferrerPage(),
+                              ));
+                    },
+                  ),
+              )
+              : SafeArea(
+                child: DeadButton(
+                    label: provider.signingUpAsMember ? 'Sign Up' : 'Next',
+                  ),
+              ),
         ],
       ),
     );
@@ -113,11 +117,11 @@ class _InterestsPageState extends State<InterestsPage> {
   // upload the image to firebase storage and get the download link of the image
   Future<String> uploadImage() async {
     String imageName = provider.email.split('@').first;
-    final StorageReference storageReference =
+    final Reference storageReference =
         FirebaseStorage.instance.ref().child('Profiles/$imageName');
-    final StorageUploadTask uploadTask =
+    final UploadTask uploadTask =
         storageReference.putFile(provider.profileImage);
-    var downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    var downloadUrl = await (await uploadTask).ref.getDownloadURL();
     var url = downloadUrl.toString();
     return url;
   }
@@ -136,11 +140,11 @@ class _InterestsPageState extends State<InterestsPage> {
       password: provider.password,
       firstName: provider.firstName.trim(),
       lastName: provider.lastName.trim(),
-      phone: provider.phone.trim(),
+      phone: provider.phone,
       community: provider.community,
       subCommunity: provider.subCommunity,
       gender: provider.gender,
-      occupation: provider.occupation.trim(),
+      occupation: provider.occupation != null ? provider.occupation.trim() : null,
       canPost: provider.signingUpAsMember ? true : false,
       dob: provider.dob,
       interests: provider.interests,

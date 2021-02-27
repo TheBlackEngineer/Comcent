@@ -52,8 +52,7 @@ class Authenticate extends StatelessWidget {
           ),
 
           // terms and conditions + privacy policy
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
+          SafeArea(
             child: GestureDetector(
               child: Text(
                 'Terms and Conditions | Privacy Policy',

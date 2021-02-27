@@ -6,6 +6,7 @@ AppBar appBar(
     Color backgroundColor,
     @required BuildContext context}) {
   return AppBar(
+    brightness: Brightness.light,
     title: Text(
       title,
       style: TextStyle(color: Theme.of(context).primaryColor),

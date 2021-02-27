@@ -18,15 +18,12 @@ void configLoading() {
 }
 
 class MyApp extends StatefulWidget {
-  // This widget is the root of your application.
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   List<SubCommunity> subs = [];
-  List<Person> users = [];
-  List<Post> posts = [];
   Widget startingScreen = SizedBox.shrink();
 
   void getSubCommunities() async {
@@ -45,6 +42,7 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       this.subs = subs;
+      print(subs.length.toString() + ' sub-communities found');
     });
   }
 

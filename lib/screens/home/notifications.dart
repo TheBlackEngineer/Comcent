@@ -17,7 +17,7 @@ class _NotificationsState extends State<Notifications> {
     user = Provider.of<User>(context);
     return Scaffold(
       appBar: appBar(title: 'Notifications', context: context),
-      body: StreamBuilder(
+      body: StreamBuilder<QuerySnapshot>(
         stream: FirestoreService.activitiesCollection
             .doc(user.uid)
             .collection('activityItems')
@@ -30,7 +30,7 @@ class _NotificationsState extends State<Notifications> {
           }
           List<NotificationItem> notificationItems = [];
 
-          snapshot.data.documents.map((DocumentSnapshot document) {
+          snapshot.data.docs.map((DocumentSnapshot document) {
             notificationItems.add(NotificationItem.fromDocument(document));
           }).toList();
           return notificationItems.isNotEmpty

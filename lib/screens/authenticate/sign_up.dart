@@ -14,14 +14,14 @@ String confirmPassword = '';
 String occupation;
 
 // valid phone number checker
-String _phoneNumberValidator(String value) {
-  Pattern pattern = r'^(?:[+0])?[0-9]{10}$'; // Optionally match a + or 0
-  RegExp regex = new RegExp(pattern);
-  if (!regex.hasMatch(value))
-    return 'Enter a valid phone Number';
-  else
-    return null;
-}
+// String _phoneNumberValidator(String value) {
+//   Pattern pattern = r'^(?:[+0])?[0-9]{10}$'; // Optionally match a + or 0
+//   RegExp regex = new RegExp(pattern);
+//   if (!regex.hasMatch(value))
+//     return 'Enter a valid phone Number';
+//   else
+//     return null;
+// }
 
 // used by leader class
 String _fileName = 'no file picked';
@@ -59,7 +59,7 @@ class _SignUpState extends State<SignUp> {
               children: [
                 // sign up as a community
                 Text(
-                  'Sign up as a Community',
+                  'Sign up as a community' + (showMemberScreen ? ' member' : ' leader'),
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 15.0,
@@ -214,20 +214,6 @@ class _MemberFormState extends State<MemberForm> {
 
               SizedBox(height: 20.0),
 
-              // phone
-              TextFormField(
-                keyboardType: TextInputType.phone,
-                decoration: textInputDecoration.copyWith(
-                  hintText: 'Phone*',
-                ),
-                validator: (value) => _phoneNumberValidator(value),
-                onChanged: (value) {
-                  setState(() => phone = value);
-                },
-              ),
-
-              SizedBox(height: 20.0),
-
               // email field
               TextFormField(
                 keyboardType: TextInputType.emailAddress,
@@ -280,19 +266,30 @@ class _MemberFormState extends State<MemberForm> {
 
               SizedBox(height: 20.0),
 
+              // phone
+              TextField(
+                keyboardType: TextInputType.phone,
+                decoration: textInputDecoration.copyWith(
+                  hintText: 'Phone',
+                ),
+                onChanged: (value) {
+                  setState(() => phone = value);
+                },
+              ),
+
+              SizedBox(height: 20.0),
+
               // dob
               BasicDateField(),
 
               SizedBox(height: 20.0),
 
               // occupation
-              TextFormField(
+              TextField(
                 textCapitalization: TextCapitalization.words,
                 decoration: textInputDecoration.copyWith(
                   hintText: 'Occupation',
                 ),
-                validator: (value) =>
-                    value.isEmpty ? 'Occupation cannot be empty' : null,
                 onChanged: (value) {
                   setState(() => occupation = value);
                 },
@@ -353,10 +350,10 @@ class _LeaderFormState extends State<LeaderForm> {
   void _openFileExplorer() async {
     try {
       FilePickerResult result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: ['jpg', 'pdf', 'png'],
-          );
-          _path = result.files.single.path;
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'pdf', 'png'],
+      );
+      _path = result.files.single.path;
     } on PlatformException catch (e) {
       showSnackBar(
           message: "Unsupported operation + ${e.toString()}", context: context);
@@ -405,20 +402,6 @@ class _LeaderFormState extends State<LeaderForm> {
                     value.isEmpty ? 'Last name cannot be empty' : null,
                 onChanged: (value) {
                   setState(() => lastName = value);
-                },
-              ),
-
-              SizedBox(height: 20.0),
-
-              // phone
-              TextFormField(
-                keyboardType: TextInputType.phone,
-                decoration: textInputDecoration.copyWith(
-                  hintText: 'Phone*',
-                ),
-                validator: (value) => _phoneNumberValidator(value),
-                onChanged: (value) {
-                  setState(() => phone = value);
                 },
               ),
 
@@ -476,13 +459,26 @@ class _LeaderFormState extends State<LeaderForm> {
 
               SizedBox(height: 20.0),
 
+              // phone
+              TextField(
+                keyboardType: TextInputType.phone,
+                decoration: textInputDecoration.copyWith(
+                  hintText: 'Phone',
+                ),
+                onChanged: (value) {
+                  setState(() => phone = value);
+                },
+              ),
+
+              SizedBox(height: 20.0),
+
               // dob
               BasicDateField(),
 
               SizedBox(height: 20.0),
 
               // occupation
-              TextFormField(
+              TextField(
                 textCapitalization: TextCapitalization.words,
                 decoration: textInputDecoration.copyWith(
                   hintText: 'Occupation',
@@ -490,8 +486,6 @@ class _LeaderFormState extends State<LeaderForm> {
                 onChanged: (value) {
                   setState(() => occupation = value);
                 },
-                validator: (value) =>
-                    value.isEmpty ? 'Occupation cannot be empty' : null,
               ),
 
               SizedBox(height: 20.0),

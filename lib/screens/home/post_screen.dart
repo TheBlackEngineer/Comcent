@@ -541,10 +541,10 @@ class _PostScreenState extends State<PostScreen> {
   Future<String> postFileGetUrl(
       {File file, String suffix, String xtension}) async {
     String fileName = randomPostID + '-' + suffix + xtension;
-    final StorageReference storageReference =
+    final Reference storageReference =
         FirebaseStorage.instance.ref().child('Posts/$fileName');
-    final StorageUploadTask uploadTask = storageReference.putFile(file);
-    var downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    final UploadTask uploadTask = storageReference.putFile(file);
+    var downloadUrl = await (await uploadTask).ref.getDownloadURL();
     var url = downloadUrl.toString();
     return url;
   }

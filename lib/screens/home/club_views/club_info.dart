@@ -461,29 +461,31 @@ class _ClubInfoState extends State<ClubInfo> {
     return showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // camera image
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text('Take photo'),
-              onTap: () {
-                Navigator.pop(context);
-                takePhoto();
-              },
-            ),
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // camera image
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Take photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  takePhoto();
+                },
+              ),
 
-            // gallery image
-            ListTile(
-              leading: Icon(Icons.image_sharp),
-              title: Text('Open gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                openGallery();
-              },
-            ),
-          ],
+              // gallery image
+              ListTile(
+                leading: Icon(Icons.image_sharp),
+                title: Text('Open gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  openGallery();
+                },
+              ),
+            ],
+          ),
         );
       },
     );
@@ -515,10 +517,10 @@ class _ClubInfoState extends State<ClubInfo> {
   // upload the image to firebase storage and get the download link of the image
   Future<String> uploadImage(
       {@required String imageName, @required File imageFile}) async {
-    final StorageReference storageReference =
+    final Reference storageReference =
         FirebaseStorage.instance.ref().child('ClubProfiles/$imageName');
-    final StorageUploadTask uploadTask = storageReference.putFile(imageFile);
-    var downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    final UploadTask uploadTask = storageReference.putFile(imageFile);
+    var downloadUrl = await (await uploadTask).ref.getDownloadURL();
     var url = downloadUrl.toString();
     return url;
   }

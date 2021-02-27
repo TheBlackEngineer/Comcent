@@ -19,8 +19,6 @@ class _GenderPickerState extends State<GenderPicker> {
   Widget build(BuildContext context) {
     return // gender
         DropdownButtonFormField(
-      validator: (value) =>
-          _controller.text.isEmpty ? 'Please select a gender' : null,
       items: categories.map((String category) {
         return DropdownMenuItem(value: category, child: Text(category));
       }).toList(),

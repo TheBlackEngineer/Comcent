@@ -36,7 +36,7 @@ class _PreHomeState extends State<PreHome> {
               activeColor: Theme.of(context).primaryColor,
               inactiveColor: Colors.grey),
           FlashyTabBarItem(
-              icon: Icon(Ionicons.ios_chatboxes),
+              icon: Icon(Ionicons.chatbox),
               title: Text('Clubs'),
               activeColor: Theme.of(context).primaryColor,
               inactiveColor: Colors.grey),

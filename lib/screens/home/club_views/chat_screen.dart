@@ -399,7 +399,6 @@ class _ChatScreenState extends State<ChatScreen>
         ),
       ),
     );
-  
   }
 
   // message template
@@ -502,66 +501,68 @@ class _ChatScreenState extends State<ChatScreen>
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // row 1
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // camera
-                  BottomSheetItem(
-                    label: 'Camera',
-                    iconData: CupertinoIcons.camera,
-                    onTap: () {
-                      Navigator.pop(context);
-                      takePhoto();
-                    },
-                  ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // row 1
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // camera
+                    BottomSheetItem(
+                      label: 'Camera',
+                      iconData: CupertinoIcons.camera,
+                      onTap: () {
+                        Navigator.pop(context);
+                        takePhoto();
+                      },
+                    ),
 
-                  // gallery
-                  BottomSheetItem(
-                    label: 'Gallery',
-                    iconData: CupertinoIcons.photo,
-                    onTap: () {
-                      Navigator.pop(context);
-                      pickImages();
-                    },
-                  ),
-                ],
-              ),
+                    // gallery
+                    BottomSheetItem(
+                      label: 'Gallery',
+                      iconData: CupertinoIcons.photo,
+                      onTap: () {
+                        Navigator.pop(context);
+                        pickImages();
+                      },
+                    ),
+                  ],
+                ),
 
-              // spacer
-              SizedBox(height: 25.0),
+                // spacer
+                SizedBox(height: 25.0),
 
-              // row 2
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // video
-                  BottomSheetItem(
-                    label: 'Video',
-                    iconData: CupertinoIcons.videocam, 
-                    onTap: () {
-                      Navigator.pop(context);
-                      addVideoFromGallery();
-                    },
-                  ),
+                // row 2
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // video
+                    BottomSheetItem(
+                      label: 'Video',
+                      iconData: CupertinoIcons.videocam,
+                      onTap: () {
+                        Navigator.pop(context);
+                        addVideoFromGallery();
+                      },
+                    ),
 
-                  // document
-                  BottomSheetItem(
-                    label: 'Document',
-                    iconData: Entypo.documents,
-                    onTap: () {
-                      Navigator.pop(context);
-                      pickDocument();
-                    },
-                  ),
-                ],
-              ),
-            ],
+                    // document
+                    BottomSheetItem(
+                      label: 'Document',
+                      iconData: Entypo.documents,
+                      onTap: () {
+                        Navigator.pop(context);
+                        pickDocument();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -687,11 +688,11 @@ class _ChatScreenState extends State<ChatScreen>
   // upload the images/videos to firebase storage and get the download url
   Future<String> postFileGetUrl({File file, String messageID}) async {
     String fileName = messageID;
-    final StorageReference storageReference = FirebaseStorage.instance
+    final Reference storageReference = FirebaseStorage.instance
         .ref()
         .child('MessageFiles/${widget.club.id}/$fileName');
-    final StorageUploadTask uploadTask = storageReference.putFile(file);
-    var downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    final UploadTask uploadTask = storageReference.putFile(file);
+    var downloadUrl = await (await uploadTask).ref.getDownloadURL();
     var url = downloadUrl.toString();
     return url;
   }

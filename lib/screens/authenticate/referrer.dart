@@ -71,12 +71,12 @@ class _ReferrerPageState extends State<ReferrerPage> {
 
   // upload the image to firebase storage and get the download link of the image
   Future<String> uploadImage() async {
-    String imageName = provider.email.split('@')[0];
-    final StorageReference storageReference =
+    String imageName = provider.email.split('@').first;
+    final Reference storageReference =
         FirebaseStorage.instance.ref().child('Profiles/$imageName');
-    final StorageUploadTask uploadTask =
+    final UploadTask uploadTask =
         storageReference.putFile(provider.profileImage);
-    var downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    var downloadUrl = await (await uploadTask).ref.getDownloadURL();
     var url = downloadUrl.toString();
     return url;
   }
@@ -92,13 +92,13 @@ class _ReferrerPageState extends State<ReferrerPage> {
     } else {
       fileName = provider.email.split('@').first + '.doc';
     }
-    final StorageReference storageRef =
+    final Reference storageRef =
         FirebaseStorage.instance.ref().child('Documents/$fileName');
 
-    final StorageUploadTask uploadTask = storageRef.putFile(
+    final UploadTask uploadTask = storageRef.putFile(
       File(provider.documentPath),
     );
-    var downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    var downloadUrl = await (await uploadTask).ref.getDownloadURL();
     var url = downloadUrl.toString();
     return url;
   }

@@ -7,17 +7,61 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:554416616811:android:d0b5d8147ea1dae22fc82e",
+        "mobilesdk_app_id": "1:554416616811:android:fed0b1f64c0cb1ea2fc82e",
         "android_client_info": {
-          "package_name": "com.example.comcent"
+          "package_name": "com.comcentlimited.comcent.app.android"
         }
       },
       "oauth_client": [
         {
-          "client_id": "554416616811-irdjkmfiqgicbnn9lufbb2jofjp0bk2o.apps.googleusercontent.com",
+          "client_id": "554416616811-38emkftm4ihcln0q61iklah8g3deh62g.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.comcent",
+            "package_name": "com.comcentlimited.comcent.app.android",
+            "certificate_hash": "dff1c73dd992e26a8abf7910c803249d76998b99"
+          }
+        },
+        {
+          "client_id": "554416616811-h7a5p7bd8paami34ennuittk304ibt6v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKiSnO4M9uQZVYSBtITIWf3QrgVG2ICmw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "554416616811-h7a5p7bd8paami34ennuittk304ibt6v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "554416616811-57p5j0d4s8vls4hlu1rla1hd1amphlc2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.comcentlimited.comcent.app.ios"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554416616811:android:8f3118761a08c4022fc82e",
+        "android_client_info": {
+          "package_name": "com.comcentlimited.comcentAdmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "554416616811-1s1hpjcrt1jp2rhieaej86q1rt079j4h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.comcentlimited.comcentAdmin",
             "certificate_hash": "9bfbe2027c5ba9f97b0e2c0d20114c6e81f60ca7"
           }
         },
@@ -37,6 +81,13 @@
             {
               "client_id": "554416616811-h7a5p7bd8paami34ennuittk304ibt6v.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "554416616811-57p5j0d4s8vls4hlu1rla1hd1amphlc2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.comcentlimited.comcent.app.ios"
+              }
             }
           ]
         }

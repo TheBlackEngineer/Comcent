@@ -68,8 +68,11 @@ class _SideMenuState extends State<SideMenu> {
       SideMenuAction(
           iconData: Icons.exit_to_app,
           title: 'Exit app',
-          onTap: () =>
-              SystemChannels.platform.invokeMethod('SystemNavigator.pop')),
+          onTap: () {
+            // on iOS, this method is ignored because Apple's human interface
+            // guidelines state that applications should not exit themselves.
+            SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          }),
     ];
   }
 
@@ -90,7 +93,7 @@ class _SideMenuState extends State<SideMenu> {
               child: GestureDetector(
                   child: Stack(
                     children: [
-                      // teal bar showing name, occupation, and sub-community
+                      // teal bar showing name and occupation
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 50.0, vertical: 8.0),
@@ -120,13 +123,16 @@ class _SideMenuState extends State<SideMenu> {
                             ),
 
                             // occupation
-                            Text(
-                              '${_provider.person.occupation}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13.0,
-                              ),
-                            )
+                            if (_provider.person.occupation != null)
+                              Text(
+                                '${_provider.person.occupation}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13.0,
+                                ),
+                              )
+                            else
+                              Text(''),
                           ],
                         ),
                       ),

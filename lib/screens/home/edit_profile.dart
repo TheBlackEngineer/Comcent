@@ -32,7 +32,7 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     final User user = Provider.of<User>(context);
     Timestamp timestamp = userData.dob;
-    DateTime dob = timestamp.toDate();
+    DateTime dob = timestamp != null ? timestamp.toDate() : null;
 
     return Scaffold(
         appBar: appBar(
@@ -208,8 +208,6 @@ class _EditProfileState extends State<EditProfile> {
                           initialValue: userData.phone,
                           decoration: textInputDecoration.copyWith(
                               prefixIcon: Icon(Icons.phone)),
-                          validator: (value) =>
-                              value.isEmpty ? 'Phone cannot be empty' : null,
                           onChanged: (value) {
                             setState(() => phone = value);
                           },
@@ -231,7 +229,10 @@ class _EditProfileState extends State<EditProfile> {
                           child: Text('Date of birth'),
                         ),
                         BasicDateField1(
-                            hintText: DateFormat.yMMMd().format(dob)),
+                          hintText: dob != null
+                              ? DateFormat.yMMMd().format(dob)
+                              : ' Tap to change',
+                        ),
                       ],
                     ),
                   ),
@@ -301,39 +302,41 @@ class _EditProfileState extends State<EditProfile> {
     return showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // camera image
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text('Take photo'),
-              onTap: () {
-                Navigator.pop(context);
-                takePhoto();
-              },
-            ),
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // camera image
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Take photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  takePhoto();
+                },
+              ),
 
-            // gallery image
-            ListTile(
-              leading: Icon(Icons.image_sharp),
-              title: Text('Open gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                openGallery();
-              },
-            ),
+              // gallery image
+              ListTile(
+                leading: Icon(Icons.image_sharp),
+                title: Text('Open gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  openGallery();
+                },
+              ),
 
-            // remove image
-            ListTile(
-              leading: Icon(Icons.clear),
-              title: Text('Remove'),
-              onTap: () {
-                Navigator.pop(context);
-                removePicture();
-              },
-            ),
-          ],
+              // remove image
+              ListTile(
+                leading: Icon(Icons.clear),
+                title: Text('Remove'),
+                onTap: () {
+                  Navigator.pop(context);
+                  removePicture();
+                },
+              ),
+            ],
+          ),
         );
       },
     );
@@ -371,10 +374,10 @@ class _EditProfileState extends State<EditProfile> {
   // upload the image to firebase storage and get the download link of the image
   Future<String> uploadImage(
       {@required String imageName, @required File imageFile}) async {
-    final StorageReference storageReference =
+    final Reference storageReference =
         FirebaseStorage.instance.ref().child('Profiles/$imageName');
-    final StorageUploadTask uploadTask = storageReference.putFile(imageFile);
-    var downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+    final UploadTask uploadTask = storageReference.putFile(imageFile);
+    var downloadUrl = await (await uploadTask).ref.getDownloadURL();
     var url = downloadUrl.toString();
     return url;
   }

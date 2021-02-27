@@ -35,29 +35,31 @@ class _AddProfileImageState extends State<AddProfileImage> {
     return showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // camera image
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text('Take photo'),
-              onTap: () {
-                Navigator.pop(context);
-                takePhoto();
-              },
-            ),
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // camera image
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Take photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  takePhoto();
+                },
+              ),
 
-            // gallery image
-            ListTile(
-              leading: Icon(Icons.image_sharp),
-              title: Text('Open gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                openGallery();
-              },
-            ),
-          ],
+              // gallery image
+              ListTile(
+                leading: Icon(Icons.image_sharp),
+                title: Text('Open gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  openGallery();
+                },
+              ),
+            ],
+          ),
         );
       },
     );
@@ -124,17 +126,19 @@ class _AddProfileImageState extends State<AddProfileImage> {
               ],
             ),
           )),
-          GradientButton(
-              label: 'Continue',
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => InterestsPage(),
-                    ));
-                Provider.of<SignUpModel>(context, listen: false).profileImage =
-                    sampleImage;
-              })
+          SafeArea(
+            child: GradientButton(
+                label: 'Continue',
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => InterestsPage(),
+                      ));
+                  Provider.of<SignUpModel>(context, listen: false).profileImage =
+                      sampleImage;
+                }),
+          )
         ],
       ),
     );

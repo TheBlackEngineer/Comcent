@@ -11,7 +11,7 @@ class NoGroupWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Icon(Ionicons.ios_chatboxes, color: Colors.grey[700], size: 75.0),
+            Icon(Ionicons.chatbox, color: Colors.grey[700], size: 75.0),
             SizedBox(height: 20.0),
             Text(
               "You've not joined any clubs",
@@ -23,7 +23,7 @@ class NoGroupWidget extends StatelessWidget {
                 TextSpan(
                   text: ' Create a club',
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => Navigator.push( 
+                    ..onTap = () => Navigator.push(
                         context,
                         CupertinoPageRoute(
                           builder: (context) => CreateAClub(),

@@ -37,8 +37,7 @@ class _BasicDateFieldState extends State<BasicDateField> {
         Provider.of<SignUpModel>(context, listen: false).dob =
             Timestamp.fromDate(newValue);
       },
-      validator: (value) =>
-          _controller.text.isEmpty ? 'Provide a valid date of birth' : null,
+
     );
   }
 }

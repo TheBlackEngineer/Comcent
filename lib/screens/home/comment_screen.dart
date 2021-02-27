@@ -309,69 +309,71 @@ class _CommentScreenState extends State<CommentScreen> {
     return showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.delete),
-              title: Text('Delete comment'),
-              onTap: () async {
-                Navigator.pop(context);
-                // first check if the comment is a reply or not
-                if (comment.isReply) {
-                  // first, remove comment, i.e reply, from the master comment's list of replies
-                  await firestoreService.removeReplyFromCommentReplies(
-                      comment.masterCommentID, comment.commentID);
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.delete),
+                title: Text('Delete comment'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  // first check if the comment is a reply or not
+                  if (comment.isReply) {
+                    // first, remove comment, i.e reply, from the master comment's list of replies
+                    await firestoreService.removeReplyFromCommentReplies(
+                        comment.masterCommentID, comment.commentID);
 
-                  // next, remove the comment from the comments collection
-                  firestoreService.deleteComment(comment);
+                    // next, remove the comment from the comments collection
+                    firestoreService.deleteComment(comment);
 
-                  // finally, remove the comment from the post's list of comments
-                  firestoreService.removeCommentFromPostComments(
-                      comment, widget.post.postID);
-                }
+                    // finally, remove the comment from the post's list of comments
+                    firestoreService.removeCommentFromPostComments(
+                        comment, widget.post.postID);
+                  }
 
-                // perform all checks and delete what has to be deleted
-                else {
-                  // if the comment does not have any replies, just delete it
-                  if (comment.replies.isEmpty) {
+                  // perform all checks and delete what has to be deleted
+                  else {
+                    // if the comment does not have any replies, just delete it
+                    if (comment.replies.isEmpty) {
+                      await FirestoreService.postsCollection
+                          .doc(widget.post.postID)
+                          .update({
+                        'comments': FieldValue.arrayRemove([comment.commentID])
+                      });
+                      await FirestoreService.commentsCollection
+                          .doc(comment.commentID)
+                          .delete();
+                    }
+
+                    // if the comment has replies, first delete them
+                    comment.replies.forEach((element) async {
+                      await FirestoreService.postsCollection
+                          .doc(widget.post.postID)
+                          .update({
+                        'comments': FieldValue.arrayRemove([element])
+                      });
+                      await FirestoreService.commentsCollection
+                          .doc(element)
+                          .delete();
+                    });
+
+                    // then delete the comment from the post's lists of comments
                     await FirestoreService.postsCollection
                         .doc(widget.post.postID)
                         .update({
                       'comments': FieldValue.arrayRemove([comment.commentID])
                     });
+
+                    // then finally, delete the comment from the comments collection
                     await FirestoreService.commentsCollection
                         .doc(comment.commentID)
                         .delete();
                   }
-
-                  // if the comment has replies, first delete them
-                  comment.replies.forEach((element) async {
-                    await FirestoreService.postsCollection
-                        .doc(widget.post.postID)
-                        .update({
-                      'comments': FieldValue.arrayRemove([element])
-                    });
-                    await FirestoreService.commentsCollection
-                        .doc(element)
-                        .delete();
-                  });
-
-                  // then delete the comment from the post's lists of comments
-                  await FirestoreService.postsCollection
-                      .doc(widget.post.postID)
-                      .update({
-                    'comments': FieldValue.arrayRemove([comment.commentID])
-                  });
-
-                  // then finally, delete the comment from the comments collection
-                  await FirestoreService.commentsCollection
-                      .doc(comment.commentID)
-                      .delete();
-                }
-              },
-            ),
-          ],
+                },
+              ),
+            ],
+          ),
         );
       },
     );

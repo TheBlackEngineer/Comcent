@@ -1,3 +1,5 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:comcent/providers/app_theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:comcent/imports.dart';
 
@@ -89,11 +91,11 @@ class _CreateAClubState extends State<CreateAClub> {
 
   @override
   void dispose() {
-    super.dispose();
     controller.dispose();
     controllers.forEach((controller) {
       controller.dispose();
     });
+    super.dispose();
   }
 
   @override
@@ -112,28 +114,32 @@ class _CreateAClubState extends State<CreateAClub> {
         children: [
           // placeholder
           sampleImage == null
-              ? Container(
-                  height: MediaQuery.of(context).size.height / 4.8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey[350],
-                        offset: Offset(0.0, 5.0), //(x,y)
-                        blurRadius: 10.0,
-                      ),
-                    ],
-                  ),
-                  child: GestureDetector(
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.add_a_photo,
-                        size: 100.0,
-                        color: Theme.of(context).primaryColor,
-                      ),
+              ? Consumer<AppThemeProvider>(
+                  builder: (context, value, child) => Container(
+                    height: MediaQuery.of(context).size.height / 4.8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: value.savedTheme == AdaptiveThemeMode.light
+                          ? [
+                              BoxShadow(
+                                color: Colors.grey[350],
+                                offset: Offset(0.0, 5.0), //(x,y)
+                                blurRadius: 10.0,
+                              ),
+                            ]
+                          : [],
                     ),
-                    onTap: openBottomSheet,
+                    child: GestureDetector(
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.add_a_photo,
+                          size: 100.0,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      onTap: openBottomSheet,
+                    ),
                   ),
                 )
               : GestureDetector(

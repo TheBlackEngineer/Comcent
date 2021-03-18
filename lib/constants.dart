@@ -193,10 +193,9 @@ List faqQuestions = [
   '5.	Who is the typical user of Comcent?',
   '6.	How are communities organized on Comcent?',
   '7.	How do our users create a blog post?',
-  '8.	What differentiates a user who is a member from a user who is a leader?',
-  '9.	Can a user who is a member become a leader on Comcent in the future?',
-  '10.  Will Comcent be available in every community when it launched?',
-  '11.	What are examples of community media platforms?'
+  '8.	Can a user who is a member become a leader on Comcent in the future?',
+  '9.  Will Comcent be available in every community when it launched?',
+  '10.	What are examples of community media platforms?'
 ];
 List faqAnswers = [
   // answer 1
@@ -231,11 +230,6 @@ Communities are organized at Comcent the same way constituencies are organized i
   '''
 
 Users will first need to select a subcommunity during registration. They will choose between whether they are leaders or members of the subcommunity. Users who select as leaders will need to be verified before they can share blog posts. Every blog post has three parts: body, title, and topic. Users in different subcommunities but who belong to the same community will see the same timeline based on the topics they have selected.  ''',
-
-  // answer 8
-  '''
-
-Users who are members of Comcent must compulsorily begin the title of their blog posts with either “we” or “our”. These restrictions apply to users who are members alone. Users who are leaders do not have these restrictions or any other restrictions. ''',
 
   // answer 9
   '''

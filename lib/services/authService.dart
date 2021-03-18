@@ -63,9 +63,8 @@ class AuthService {
         subCommunity: subCommunity,
         gender: gender,
         occupation: occupation,
-        followers: [],
-        following: [],
-        posts: [],
+        posts: 0,
+        numberOfWeOurPosts: 0,
         interests: interests,
         profilePhoto: profilePhoto,
         referrer: referrer,
@@ -91,4 +90,3 @@ class AuthService {
     }
   }
 }
-

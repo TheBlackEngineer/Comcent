@@ -8,6 +8,9 @@ class FirestoreService {
   FirestoreService({this.uid});
 
   // collection references
+  static final CollectionReference userApprovedPostsCollection =
+      FirebaseFirestore.instance.collection('userApprovedPosts');
+
   static final CollectionReference activitiesCollection =
       FirebaseFirestore.instance.collection('activities');
 
@@ -26,14 +29,23 @@ class FirestoreService {
   static final CollectionReference documentsCollection =
       FirebaseFirestore.instance.collection('documents');
 
-  static final CollectionReference leadersCollection =
-      FirebaseFirestore.instance.collection('leaders');
+  static final CollectionReference followingsCollection =
+      FirebaseFirestore.instance.collection('followings');
+
+  static final CollectionReference followersCollection =
+      FirebaseFirestore.instance.collection('followers');
+
+  static final CollectionReference leaderPostsCollection =
+      FirebaseFirestore.instance.collection('leaderPosts');
 
   static final CollectionReference postsCollection =
       FirebaseFirestore.instance.collection('posts');
 
   static final CollectionReference subCommunitiesCollection =
       FirebaseFirestore.instance.collection('sub-communities');
+
+  static final CollectionReference timelineCollection =
+      FirebaseFirestore.instance.collection('timeline');
 
   static final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection('users');
@@ -51,9 +63,8 @@ class FirestoreService {
     String subCommunity,
     String gender,
     String occupation,
-    List<String> followers,
-    List<String> following,
-    List<String> posts,
+    int posts,
+    int numberOfWeOurPosts,
     List<String> interests,
     String profilePhoto,
     String referrer,
@@ -74,9 +85,8 @@ class FirestoreService {
       'subCommunity': subCommunity,
       'gender': gender,
       'occupation': occupation,
-      'followers': followers,
-      'following': following,
       'posts': posts,
+      'numberOfWeOurPosts': numberOfWeOurPosts,
       'interests': interests,
       'profilePhoto': profilePhoto,
       'referrer': referrer,
@@ -90,12 +100,30 @@ class FirestoreService {
 
 // -------------------- Delete methods -------------------------
   // delete a post from a user's posts
-  Future deleteFromUserPosts({@required String postID}) async {
-    await usersCollection.doc(uid).get().then((document) {
-      document.reference.update({
-        'posts': FieldValue.arrayRemove([postID])
-      });
-    });
+  Future updateUserPostcount({@required Post post, String action}) async {
+    DocumentSnapshot userDoc = await usersCollection.doc(uid).get();
+    int postCount = userDoc.get('posts');
+    int numberOfWeOurPosts = userDoc.get('numberOfWeOurPosts');
+    if (action != null) {
+      await userDoc.reference.update({'posts': postCount + 1});
+
+      // If the post title starts with we or our, update the numberOfWeOurPosts
+      // variable
+      if (post.topic.toLowerCase().startsWith('we') ||
+          post.topic.toLowerCase().startsWith('our')) {
+        await userDoc.reference
+            .update({'numberOfWeOurPosts': numberOfWeOurPosts + 1});
+      }
+      return 'Post added';
+    } else {
+      await userDoc.reference.update({'posts': postCount - 1});
+      if (post.topic.toLowerCase().startsWith('we') ||
+          post.topic.toLowerCase().startsWith('our')) {
+        await userDoc.reference
+            .update({'numberOfWeOurPosts': numberOfWeOurPosts - 1});
+      }
+      return 'Post deleted';
+    }
   }
 
 // -------------------- Fetch methods -------------------------
@@ -116,34 +144,15 @@ class FirestoreService {
   }
 
 // -------------------- Add methods -------------------------
-  // add a user to the member list of a subcommunity
-  static Future<String> addMember({Person person}) async {
-    await communitiesCollection
-        .doc(person.community)
-        .collection('sub-communities')
-        .doc(person.subCommunity)
-        .update({
-      'members': FieldValue.arrayUnion([person.id]),
-    });
-    return 'User added';
-  }
 
   // add document to documents collection
   static addDocument(Document document) async {
     await documentsCollection.doc(document.email).set(document.toMap());
   }
 
-  // add a post to user's posts
-  Future<String> addToUserPosts({Post post}) async {
-    await usersCollection.doc(uid).update({
-      'posts': FieldValue.arrayUnion([post.postID]),
-    });
-    return 'Post uploaded';
-  }
-
   // add post to posts collection
   Future addPost({@required Post post}) async {
-    return postsCollection.doc(post.postID).set(post.toMap());
+    await postsCollection.doc(post.postID).set(post.toMap());
   }
 
   // add comment to comments collection
@@ -157,39 +166,51 @@ class FirestoreService {
   }
 
   // add comment to a post's list of comments
-  Future<String> addCommentToPostComments(
-      Comment comment, String postID) async {
-    await postsCollection.doc(postID).update({
-      'comments': FieldValue.arrayUnion([comment.commentID]),
-    });
-    return 'Comment added';
+  Future<String> updatePostCommentCount(
+      {@required String postID,
+      String action,
+      int numberOfRepliesPlusComment}) async {
+    // Get the post
+    DocumentSnapshot docSnapshot = await postsCollection.doc(postID).get();
+
+    /// Get the number of comments on the post
+    int commentCount = docSnapshot.data()['comments'];
+
+    if (action != null) {
+      await postsCollection.doc(postID).update({
+        'comments': commentCount + 1,
+      });
+      return 'Comment added';
+    } else {
+      numberOfRepliesPlusComment == null
+          ? await postsCollection.doc(postID).update({
+              'comments': commentCount - 1,
+            })
+          : await postsCollection.doc(postID).update({
+              'comments': commentCount - numberOfRepliesPlusComment,
+            });
+      return 'Comment removed';
+    }
   }
 
-  // remove comment from a post's list of comments
-  Future<String> removeCommentFromPostComments(
-      Comment comment, String postID) async {
-    await postsCollection.doc(postID).update({
-      'comments': FieldValue.arrayRemove([comment.commentID]),
-    });
-    return 'Comment deleted';
-  }
-
-  // add reply to a comment's list of replies
-  Future<String> addReplyToCommentReplies(
-      String commentID, String replyID) async {
-    await commentsCollection.doc(commentID).update({
-      'replies': FieldValue.arrayUnion([replyID]),
-    });
-    return 'Comment added';
-  }
-
-  // remove reply from a comment's list of replies
-  Future<String> removeReplyFromCommentReplies(
-      String masterCommentID, String replyID) async {
-    await commentsCollection.doc(masterCommentID).update({
-      'replies': FieldValue.arrayRemove([replyID]),
-    });
-    return 'Comment deleted';
+  // Update comment replies
+  Future<String> updateCommentReplies(
+      {String action,
+      @required String masterCommentID,
+      @required String replyID}) async {
+    if (action != null) {
+      // Add reply to a comment's list of replies
+      await commentsCollection.doc(masterCommentID).update({
+        'replies': FieldValue.arrayUnion([replyID]),
+      });
+      return 'Comment added';
+    } else {
+      // Remove reply from a comment's list of replies
+      await commentsCollection.doc(masterCommentID).update({
+        'replies': FieldValue.arrayRemove([replyID]),
+      });
+      return 'Comment deleted';
+    }
   }
 
   // ---------------------------------------------------------------------------

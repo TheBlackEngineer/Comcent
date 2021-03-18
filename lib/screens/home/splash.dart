@@ -82,6 +82,7 @@ class _IntroSliderState extends State<IntroSlider> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.light,
         elevation: 0.0,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         centerTitle: true,

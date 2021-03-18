@@ -33,6 +33,7 @@ class _BookmarksState extends State<Bookmarks> {
 
   @override
   Widget build(BuildContext context) {
+    bookmarks.reversed;
     return Scaffold(
         appBar: appBar(
             title: 'Bookmarks',
@@ -44,7 +45,7 @@ class _BookmarksState extends State<Bookmarks> {
                 physics: BouncingScrollPhysics(),
                 itemCount: bookmarks.length,
                 itemBuilder: (context, index) {
-                  String postID = bookmarks.reversed.toList()[index];
+                  String postID = bookmarks[index];
                   return FutureBuilder(
                     future: FirestoreService.postsCollection.doc(postID).get(),
                     builder: (context, snapshot) {
@@ -53,7 +54,7 @@ class _BookmarksState extends State<Bookmarks> {
                         return GestureDetector(
                           child: PostCard(post: post),
                           onLongPress: () async {
-                            await showBottomSheet(context, post);
+                            await showBottomSheet(post);
                           },
                         );
                       }
@@ -70,32 +71,37 @@ class _BookmarksState extends State<Bookmarks> {
   }
 
   // bottom sheet
-  showBottomSheet(BuildContext context, Post post) async {
+  showBottomSheet(Post post) async {
     showModalBottomSheet(
       context: context,
       builder: (ctx) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // remove from bookmarks
-            ListTile(
-              leading: Icon(Icons.bookmark_border_rounded),
-              title: Text('Remove from bookmarks'),
-              onTap: () async {
-                Navigator.pop(ctx);
-                setState(() {
-                  bookmarks.remove(post.postID);
-                });
-                await FirestoreService.bookmarksCollection
-                    .doc(post.postID)
-                    .update({
-                  'usersWhoBookmarked':
-                      FieldValue.arrayRemove([authService.getCurrentUserID])
-                }).then((value) => showSnackBar(
-                        message: 'Removed from bookmarks', context: context));
-              },
-            ),
-          ],
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // remove from bookmarks
+              ListTile(
+                leading: Icon(Icons.bookmark_border_rounded, color: Colors.red),
+                title: Text(
+                  'Remove from bookmarks',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  setState(() {
+                    bookmarks.remove(post.postID);
+                  });
+                  await FirestoreService.bookmarksCollection
+                      .doc(post.postID)
+                      .update({
+                    'usersWhoBookmarked':
+                        FieldValue.arrayRemove([authService.getCurrentUserID])
+                  }).then((value) => showSnackBar(
+                          message: 'Removed from bookmarks', context: context));
+                },
+              ),
+            ],
+          ),
         );
       },
     );

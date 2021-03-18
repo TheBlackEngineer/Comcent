@@ -41,11 +41,13 @@ class _FAQState extends State<FAQ> {
                 return Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: ExpandablePanel(
-                    header: Text(item.headerValue,
-                        style: TextStyle(
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54)),
+                    header: Text(
+                      item.headerValue,
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     collapsed: Text(''),
                     expanded: Text(
                       item.expandedValue,
@@ -58,6 +60,8 @@ class _FAQState extends State<FAQ> {
                     tapHeaderToExpand: true,
                     // ignore: deprecated_member_use
                     hasIcon: true,
+                    // ignore: deprecated_member_use
+                    iconColor: Theme.of(context).textSelectionColor,
                   ),
                 );
               },

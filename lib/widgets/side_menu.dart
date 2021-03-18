@@ -1,3 +1,5 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:comcent/providers/app_theme_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:comcent/imports.dart';
@@ -10,7 +12,7 @@ class SideMenu extends StatefulWidget {
 }
 
 class _SideMenuState extends State<SideMenu> {
-  List<SideMenuAction> actions;
+  List<dynamic> actions;
   CommunityProvider _provider;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -63,22 +65,12 @@ class _SideMenuState extends State<SideMenu> {
           iconData: Icons.bug_report_outlined,
           title: 'Report a problem',
           onTap: () async => await sendMail()),
-
-      // exit app
-      SideMenuAction(
-          iconData: Icons.exit_to_app,
-          title: 'Exit app',
-          onTap: () {
-            // on iOS, this method is ignored because Apple's human interface
-            // guidelines state that applications should not exit themselves.
-            SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-          }),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    double percentage = (_provider.person.posts.length / 400) * 100;
+    double percentage = (_provider.person.numberOfWeOurPosts / 400) * 100;
 
     return Drawer(
       key: _scaffoldKey,
@@ -94,46 +86,51 @@ class _SideMenuState extends State<SideMenu> {
                   child: Stack(
                     children: [
                       // teal bar showing name and occupation
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 50.0, vertical: 8.0),
-                        margin: const EdgeInsets.only(left: 50.0, top: 20.0),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(50.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              spreadRadius: 0.0,
-                              offset: Offset(0.0, 2.0), //(x,y)
-                              blurRadius: 4.0,
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // username
-                            Text(
-                              '${_provider.person.firstName} ${_provider.person.lastName}',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold),
-                            ),
-
-                            // occupation
-                            if (_provider.person.occupation != null)
+                      Consumer<AppThemeProvider>(
+                        builder: (context, value, child) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50.0, vertical: 8.0),
+                          margin: const EdgeInsets.only(left: 50.0, top: 20.0),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(50.0),
+                            boxShadow:
+                                value.savedTheme == AdaptiveThemeMode.light
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.grey,
+                                          spreadRadius: 0.0,
+                                          offset: Offset(0.0, 2.0), //(x,y)
+                                          blurRadius: 4.0,
+                                        ),
+                                      ]
+                                    : [],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // username
                               Text(
-                                '${_provider.person.occupation}',
+                                '${_provider.person.firstName} ${_provider.person.lastName}',
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13.0,
-                                ),
-                              )
-                            else
-                              Text(''),
-                          ],
+                                    color: Colors.white,
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+
+                              // occupation
+                              if (_provider.person.occupation != null)
+                                Text(
+                                  '${_provider.person.occupation}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.0,
+                                  ),
+                                )
+                              else
+                                Text(''),
+                            ],
+                          ),
                         ),
                       ),
 
@@ -149,7 +146,10 @@ class _SideMenuState extends State<SideMenu> {
                                   _provider.person.profilePhoto,
                                 )
                               : CircleAvatar(
-                                  child: Icon(Icons.person),
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                  child:
+                                      Icon(Icons.person, color: Colors.white),
                                 ),
                         ),
                       ),
@@ -219,10 +219,12 @@ class _SideMenuState extends State<SideMenu> {
                     SideMenuAction action = actions[index];
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: Icon(action.iconData, color: Colors.white),
-                      ),
+                      leading: action.iconData != null
+                          ? CircleAvatar(
+                              backgroundColor: Theme.of(context).primaryColor,
+                              child: Icon(action.iconData, color: Colors.white),
+                            )
+                          : SizedBox.shrink(),
                       title: Text(action.title,
                           style:
                               TextStyle(color: Theme.of(context).primaryColor)),
@@ -267,7 +269,7 @@ class _SideMenuState extends State<SideMenu> {
         });
   }
 
-  // launches the user's mail app and prepares it for sending a mail
+  // Launches the user's mail app and prepares it for sending a mail
   Future<void> sendMail() async {
     final Email email = Email(
       body: '',
@@ -276,15 +278,10 @@ class _SideMenuState extends State<SideMenu> {
       isHTML: false,
     );
 
-    String platformResponse;
-
     try {
       await FlutterEmailSender.send(email);
-      platformResponse = 'Thanks for the feedback!';
     } catch (error) {
-      platformResponse = error.toString();
+      print(error.toString());
     }
-
-    showSnackBar(message: platformResponse, context: context);
   }
 }

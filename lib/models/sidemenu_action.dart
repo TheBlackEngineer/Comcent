@@ -5,9 +5,10 @@ class SideMenuAction {
   final String title;
   final Function onTap;
 
-  const SideMenuAction(
-      {Key key,
-      @required this.iconData,
-      @required this.title,
-      @required this.onTap});
+  const SideMenuAction({
+    Key key,
+    this.iconData,
+    this.title,
+    this.onTap,
+  });
 }

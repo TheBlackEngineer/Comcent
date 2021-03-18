@@ -15,18 +15,16 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  Stream<DocumentSnapshot> getPostOwner;
+  Future<DocumentSnapshot> getPostOwner;
   User user;
   CommunityProvider _communityProvider;
   String bullet = "\u2022 ";
-  final PageController controller = PageController();
-  final ExpandableController expandableController = ExpandableController();
+  PageController controller;
+  ExpandableController expandableController;
   int activeIndex = 0;
 
-  Stream<DocumentSnapshot> getPerson() {
-    return FirestoreService.usersCollection
-        .doc(widget.post.ownerID)
-        .snapshots();
+  Future<DocumentSnapshot> getPerson() {
+    return FirestoreService.usersCollection.doc(widget.post.ownerID).get();
   }
 
   // check if a url is a video or image
@@ -46,7 +44,16 @@ class _PostCardState extends State<PostCard> {
   @override
   void initState() {
     super.initState();
+    controller = PageController();
+    expandableController = ExpandableController();
     getPostOwner = getPerson();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    expandableController.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,19 +69,19 @@ class _PostCardState extends State<PostCard> {
     String tAgo = timeago.format(dateTime);
 
     return Container(
-      color: Colors.white,
-      margin: const EdgeInsets.only(top: 12.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // owner profile
-          StreamBuilder<DocumentSnapshot>(
-              stream: getPostOwner,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  Person person = Person.fromDocument(snapshot.data);
-                  return ListTile(
+      color: Theme.of(context).canvasColor,
+      margin: const EdgeInsets.only(top: 8.0),
+      child: FutureBuilder<DocumentSnapshot>(
+          future: getPostOwner,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              Person person = Person.fromDocument(snapshot.data);
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Owner profile
+                  ListTile(
                     contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
                     leading: person.profilePhoto != null
                         ? CircularProfileAvatar(
@@ -88,11 +95,12 @@ class _PostCardState extends State<PostCard> {
                           )
                         : CircleAvatar(
                             radius: MediaQuery.of(context).size.width / 17,
-                            child: Icon(Icons.person),
+                            backgroundColor: Theme.of(context).primaryColor,
+                            child: Icon(Icons.person, color: Colors.white),
                           ),
                     title: Row(
                       children: [
-                        // first name
+                        // User name
                         Flexible(
                             child:
                                 Text(person.firstName + ' ' + person.lastName)),
@@ -104,7 +112,8 @@ class _PostCardState extends State<PostCard> {
                     subtitle: Text('@' + person.subCommunity + ' - ' + tAgo),
                     trailing: Text(
                       '#' + widget.post.topic,
-                      style: TextStyle(color: Colors.black54),
+                      style: TextStyle(
+                          color: Theme.of(context).textSelectionColor),
                     ),
                     onTap: () {
                       Navigator.push(
@@ -113,293 +122,251 @@ class _PostCardState extends State<PostCard> {
                               builder: (context) =>
                                   Profile(userID: person.id)));
                     },
-                  );
-                } else {
-                  return Shimmer.fromColors(
-                    period: Duration(seconds: 2),
-                    baseColor: Colors.grey[300],
-                    highlightColor: Colors.grey[100],
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
-                      leading: CircleAvatar(
-                          radius: MediaQuery.of(context).size.width / 17),
-                      title: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.6,
-                          height: 22.0,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[500],
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                      ),
-                      subtitle: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.4,
-                          height: 9.0,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[500],
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              }),
-
-          // post body and title
-          ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
-            leading: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              radius: MediaQuery.of(context).size.width / 17,
-            ),
-            subtitle: ExpandablePanel(
-              controller: expandableController,
-              header: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.post.title,
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black),
                   ),
 
-                  // spacer
-                  SizedBox(height: 5.0),
-                ],
-              ),
-              collapsed: GestureDetector(
-                child: Linkify(
-                  text: widget.post.body,
-                  maxLines: 3,
-                  overflow: TextOverflow.fade,
-                  options: LinkifyOptions(looseUrl: true),
-                  onOpen: (link) async {
-                    if (await canLaunch(link.url)) {
-                      await launch(link.url);
-                    } else {
-                      throw 'Could not launch $link';
-                    }
-                  },
-                ),
-                onTap: () => expandableController.toggle(),
-              ),
-              expanded: GestureDetector(
-                child: Linkify(
-                  text: widget.post.body,
-                  onOpen: (link) async {
-                    if (await canLaunch(link.url)) {
-                      await launch(link.url);
-                    } else {
-                      throw 'Could not launch $link';
-                    }
-                  },
-                ),
-                onTap: () => expandableController.toggle(),
-              ),
-              // ignore: deprecated_member_use
-              hasIcon: false,
-            ),
-          ),
+                  // post body and title
+                  PostTitleAndSubtitle(
+                    expandableController: expandableController,
+                    postTitle: widget.post.title,
+                    postBody: widget.post.body,
+                  ),
 
-          // attachments
-          attachments.isNotEmpty
-              ? Flexible(
-                  fit: FlexFit.loose,
-                  child: Container(
-                    height: MediaQuery.of(context).size.width / 1.1,
-                    width: double.infinity,
-                    child: PageView.builder(
-                      pageSnapping: true,
-                      controller: controller,
-                      physics: BouncingScrollPhysics(),
-                      itemCount: attachments.length,
-                      onPageChanged: (value) {
-                        setState(() {
-                          activeIndex = value;
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        String file = attachments[index];
-                        UrlType urlType = getUrlType(file);
-                        if (urlType == UrlType.IMAGE) {
-                          return GestureDetector(
-                            child: CachedNetworkImage(
-                              placeholder: (context, url) => Image.asset(
-                                  'assets/illustrations/placeholder.png'),
-                              imageUrl: file,
-                              fit: BoxFit.cover,
+                  // attachments
+                  attachments.isNotEmpty
+                      ? Flexible(
+                          fit: FlexFit.loose,
+                          child: Container(
+                            height: MediaQuery.of(context).size.width / 1.1,
+                            width: double.infinity,
+                            child: PageView.builder(
+                              pageSnapping: true,
+                              controller: controller,
+                              physics: BouncingScrollPhysics(),
+                              itemCount: attachments.length,
+                              onPageChanged: (value) {
+                                setState(() {
+                                  activeIndex = value;
+                                });
+                              },
+                              itemBuilder: (context, index) {
+                                String file = attachments[index];
+                                UrlType urlType = getUrlType(file);
+                                if (urlType == UrlType.IMAGE) {
+                                  return GestureDetector(
+                                    child: CachedNetworkImage(
+                                      placeholder: (context, url) => Image.asset(
+                                          'assets/illustrations/placeholder.png'),
+                                      imageUrl: file,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    onTap: () => Navigator.push(
+                                        context,
+                                        TransparentCupertinoPageRoute(
+                                            builder: (context) => ImageView(
+                                                  imageUrl: file,
+                                                ))),
+                                  );
+                                } else if (urlType == UrlType.VIDEO) {
+                                  return ChewieListItem(
+                                    videoPlayerController:
+                                        VideoPlayerController.network(file),
+                                  );
+                                } else {
+                                  return Container(
+                                    color: Colors.yellow,
+                                  );
+                                }
+                              },
                             ),
-                            onTap: () => Navigator.push(
-                                context,
-                                TransparentCupertinoPageRoute(
-                                    builder: (context) => ImageView(
-                                          imageUrl: file,
-                                        ))),
-                          );
-                        } else if (urlType == UrlType.VIDEO) {
-                          return ChewieListItem(
-                            videoPlayerController:
-                                VideoPlayerController.network(file),
-                          );
-                        } else {
-                          return Container(
-                            color: Colors.yellow,
-                          );
-                        }
-                      },
-                    ),
-                  ))
-              : SizedBox(height: 12.0),
+                          ))
+                      : SizedBox(height: 12.0),
 
-          // dots indicator
-          attachments.length > 1
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0),
-                  child: Center(
-                    child: AnimatedSmoothIndicator(
-                      activeIndex: activeIndex,
-                      count: attachments.length,
-                      effect: JumpingDotEffect(
-                          dotHeight: 8.0,
-                          dotWidth: 8.0,
-                          activeDotColor: Theme.of(context)
-                              .primaryColor), // your preferred effect
-                    ),
-                  ),
-                )
-              : SizedBox.shrink(),
+                  // Dots indicator
+                  attachments.length > 1
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5.0),
+                          child: Center(
+                            child: AnimatedSmoothIndicator(
+                              activeIndex: activeIndex,
+                              count: attachments.length,
+                              effect: JumpingDotEffect(
+                                  dotHeight: 8.0,
+                                  dotWidth: 8.0,
+                                  activeDotColor: Theme.of(context)
+                                      .primaryColor), // your preferred effect
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
 
-          // buttons
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // approve and comment icons
-                Row(
-                  children: [
-                    // approve icon
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
-                      child: StreamBuilder(
-                        stream: FirestoreService.postsCollection
-                            .doc(widget.post.postID)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            bool liked = snapshot.data['usersWhoLiked']
-                                .contains(user.uid);
-                            return GestureDetector(
-                                child: Icon(
-                                  liked
-                                      ? Icons.check_circle_outline
-                                      : Icons.check_circle_outline,
-                                  color: liked ? Colors.green : Colors.black,
-                                  size: 28.0,
-                                ),
-                                onTap: () => controlLikeAction(liked));
-                          } else {
-                            return Icon(
-                              Icons.check_circle_outline,
-                              color: Colors.grey,
-                            );
-                          }
-                        },
-                      ),
-                    ),
-
-                    // comment icon
-                    GestureDetector(
-                      child: Icon(Icons.chat_bubble_outline),
-                      onTap: () => Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) =>
-                              CommentScreen(post: widget.post),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                // approvals and comments
-                Row(
-                  children: [
-                    // number of likes
-                    StreamBuilder(
-                      stream: FirestoreService.postsCollection
-                          .doc(widget.post.postID)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          int likes = snapshot.data['usersWhoLiked'].length;
-                          return GestureDetector(
-                            child: Text(likes.toString() +
-                                (likes != 1 ? ' Approvals  ' : ' Approval  ')),
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(
-                                      builder: (context) =>
-                                          ApprovalsList(post: widget.post)));
-                            },
-                          );
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      },
-                    ),
-
-                    Text(bullet),
-
-                    // number of comments
-                    StreamBuilder<DocumentSnapshot>(
-                      stream: FirestoreService.postsCollection
-                          .doc(widget.post.postID)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          int comments = snapshot.data['comments'].length;
-                          return GestureDetector(
-                            child: Text(comments.toString() +
-                                (comments != 1 ? ' Comments  ' : ' Comment  ')),
-                            onTap: () => Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                builder: (context) =>
-                                    CommentScreen(post: widget.post),
+                  // Footer
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 5.0, horizontal: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Approve and comment icons
+                        Row(
+                          children: [
+                            // Approve icon
+                            Padding(
+                              padding: const EdgeInsets.only(right: 20.0),
+                              child: StreamBuilder<DocumentSnapshot>(
+                                stream: FirestoreService.postsCollection
+                                    .doc(widget.post.postID)
+                                    .collection('approvedBy')
+                                    .doc(user.uid)
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    DocumentSnapshot document = snapshot.data;
+                                    bool liked = document.exists;
+                                    return GestureDetector(
+                                        child: Icon(
+                                          liked
+                                              ? Icons.check_circle_outline
+                                              : Icons.check_circle_outline,
+                                          color: liked
+                                              ? Colors.green
+                                              : Theme.of(context)
+                                                  .textSelectionColor,
+                                          size: 32.0,
+                                        ),
+                                        onTap: () => controlLikeAction(liked));
+                                  } else {
+                                    return Icon(
+                                      Icons.check_circle_outline,
+                                      color:
+                                          Theme.of(context).textSelectionColor,
+                                    );
+                                  }
+                                },
                               ),
                             ),
-                          );
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      },
+
+                            // Comment icon
+                            GestureDetector(
+                              child:
+                                  Icon(Icons.chat_bubble_outline, size: 30.0),
+                              onTap: () => Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) =>
+                                      CommentScreen(post: widget.post),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Approvals and comments
+                        Row(
+                          children: [
+                            // Number of approvals
+                            StreamBuilder<DocumentSnapshot>(
+                              stream: FirestoreService.postsCollection
+                                  .doc(widget.post.postID)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  int likes = snapshot.data['approvals'];
+                                  return GestureDetector(
+                                    child: Text(likes.toString() +
+                                        (likes != 1
+                                            ? ' Approvals  '
+                                            : ' Approval  ')),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                          builder: (context) =>
+                                              ApprovalsList(post: widget.post),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  return SizedBox.shrink();
+                                }
+                              },
+                            ),
+
+                            Text(bullet),
+
+                            // Number of comments
+                            StreamBuilder<DocumentSnapshot>(
+                              stream: FirestoreService.postsCollection
+                                  .doc(widget.post.postID)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  int comments = snapshot.data['comments'];
+                                  return GestureDetector(
+                                    child: Text(comments.toString() +
+                                        (comments != 1
+                                            ? ' Comments  '
+                                            : ' Comment  ')),
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      CupertinoPageRoute(
+                                        builder: (context) =>
+                                            CommentScreen(post: widget.post),
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return SizedBox.shrink();
+                                }
+                              },
+                            ),
+                          ],
+                        )
+                      ],
                     ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
+                  ),
+                ],
+              );
+            } else {
+              return SizedBox.shrink();
+            }
+          }),
     );
   }
 
   controlLikeAction(bool liked) async {
+    // Check if the post owner is the same person as the signed in user
     bool isNotPostOwner = widget.post.ownerID != user.uid;
+
+    // Get the number of approvals for this post
+    int approvalCount = await FirestoreService.postsCollection
+        .doc(widget.post.postID)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) =>
+            documentSnapshot.data()['approvals']);
+
     if (liked) {
-      await Post.removeUserFromLikesList(
+      // Reduce the number of approvals by 1
+      int updatedApprovalCount = approvalCount -= 1;
+
+      await Post.removeUserFromApprovedByColl(
         post: widget.post,
         userID: user.uid,
       );
+
+      // Reduce approvals by one
+      await FirestoreService.postsCollection
+          .doc(widget.post.postID)
+          .update({'approvals': updatedApprovalCount});
+
+      // Remove this post from the users userApprovedPosts
+      await FirestoreService.userApprovedPostsCollection
+          .doc(user.uid)
+          .collection('userApprovedPosts')
+          .doc(widget.post.postID)
+          .delete();
+
+      // Remove this activity from the activities collection
       if (isNotPostOwner) {
         await FirestoreService.activitiesCollection
             .doc(widget.post.ownerID)
@@ -411,10 +378,27 @@ class _PostCardState extends State<PostCard> {
         });
       }
     } else {
-      await Post.addUserToLikesList(
+      // Increase the number of approvals by 1
+      int updatedApprovalCount = approvalCount += 1;
+
+      await Post.addUserToApprovedByColl(
         post: widget.post,
         userID: user.uid,
       );
+
+      // Increase approvals by one
+      await FirestoreService.postsCollection
+          .doc(widget.post.postID)
+          .update({'approvals': updatedApprovalCount});
+
+      // Add this post to the users userApprovedPosts
+      await FirestoreService.userApprovedPostsCollection
+          .doc(user.uid)
+          .collection('userApprovedPosts')
+          .doc(widget.post.postID)
+          .set({});
+
+      // Add this action to the activities collection
       if (isNotPostOwner) {
         await FirestoreService.activitiesCollection
             .doc(widget.post.ownerID)

@@ -28,7 +28,7 @@ class _SearchScreenState extends State<SearchScreen> {
     List tempList = List();
 
     for (DocumentSnapshot documentSnapshot in userSnapshots) {
-      tempList.add(Person.fromDocument(documentSnapshot));
+      tempList.add(Person.fromMap(documentSnapshot.data()));
     }
 
     setState(() {
@@ -81,7 +81,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       CachedNetworkImageProvider(person.profilePhoto),
                 )
               : CircleAvatar(
-                  child: Icon(Icons.person),
+                  backgroundColor: Theme.of(context).primaryColor,
+                  child: Icon(Icons.person, color: Colors.white),
                 ),
           title: Row(
             children: [
@@ -115,13 +116,10 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          elevation: 0.0,
-          backgroundColor: Colors.transparent,
           title: Text(
             'Search',
             style: TextStyle(color: Theme.of(context).primaryColor),
           ),
-          centerTitle: true,
           bottom: PreferredSize(
               preferredSize: Size.fromHeight(90.0),
               child: SearchBox(searchFieldController: _searchFieldController)),

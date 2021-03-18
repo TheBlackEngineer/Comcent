@@ -9,15 +9,6 @@ showSnackBar({@required String message, @required BuildContext context}) {
     borderRadius: 5.0,
     reverseAnimationCurve: Curves.linear,
     forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
-    mainButton: FlatButton(
-      onPressed: () {
-        Navigator.pop(context);
-      },
-      child: Text(
-        'OK',
-        style: TextStyle(color: Colors.teal),
-      ),
-    ),
     messageText: Text(
       message,
       style: TextStyle(

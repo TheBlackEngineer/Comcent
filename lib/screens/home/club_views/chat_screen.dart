@@ -56,10 +56,10 @@ class _ChatScreenState extends State<ChatScreen>
 
   @override
   void dispose() {
-    super.dispose();
     scrollController.dispose();
     animationController.dispose();
     _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -92,6 +92,25 @@ class _ChatScreenState extends State<ChatScreen>
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 75.0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              icon:
+                  Icon(Icons.more_vert, color: Theme.of(context).primaryColor),
+              onSelected: choiceAction,
+              itemBuilder: (BuildContext context) {
+                return Constants.choices.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            )
+          ],
           title: GestureDetector(
             child: Column(
               children: [
@@ -105,7 +124,8 @@ class _ChatScreenState extends State<ChatScreen>
                         )
                       : CircleAvatar(
                           radius: 18.0,
-                          child: Icon(Icons.group),
+                          backgroundColor: Theme.of(context).primaryColor,
+                          child: Icon(Icons.group, color: Colors.white),
                         ),
                 ),
 
@@ -150,33 +170,10 @@ class _ChatScreenState extends State<ChatScreen>
               );
             },
           ),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          elevation: 3.0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            color: Colors.black,
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: <Widget>[
-            PopupMenuButton<String>(
-              icon:
-                  Icon(Icons.more_vert, color: Theme.of(context).primaryColor),
-              onSelected: choiceAction,
-              itemBuilder: (BuildContext context) {
-                return Constants.choices.map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                }).toList();
-              },
-            )
-          ],
         ),
         body: Column(
           children: [
-            // messages
+            // Messages
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirestoreService.clubsCollection
@@ -214,8 +211,11 @@ class _ChatScreenState extends State<ChatScreen>
                           itemBuilder: (context, dynamic element) => element,
                           groupSeparatorBuilder: (groupByValue) => Center(
                             child: Container(
-                              child: Text(groupByValue.toString(),
-                                  textAlign: TextAlign.center),
+                              child: Text(
+                                groupByValue.toString(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.black),
+                              ),
                               padding: EdgeInsets.symmetric(
                                   vertical: 8.0, horizontal: 15.0),
                               margin: EdgeInsets.only(top: 15.0, bottom: 10.0),
@@ -240,132 +240,137 @@ class _ChatScreenState extends State<ChatScreen>
               ),
             ),
 
-            // textfield and send button
+            // text field and send button
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-              child: Column(
-                children: [
-                  // number of files selected
-                  images.isEmpty && videos.isEmpty && documents.isEmpty
-                      ? SizedBox.shrink()
-                      : Container(
-                          height: 40.0,
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 12.0, horizontal: 12.0),
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
-                            children: [
-                              // assets and images
-                              images.isNotEmpty
-                                  ? Chip(
-                                      label: Text(
-                                          images.length.toString() + ' images'),
-                                      deleteIcon: Icon(Icons.clear),
-                                      onDeleted: () {
-                                        images.clear();
-                                        setState(() {});
-                                      },
-                                    )
-                                  : SizedBox.shrink(),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // number of files selected
+                    images.isEmpty && videos.isEmpty && documents.isEmpty
+                        ? SizedBox.shrink()
+                        : Container(
+                            height: 40.0,
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 12.0, horizontal: 12.0),
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              physics: BouncingScrollPhysics(),
+                              children: [
+                                // assets and images
+                                images.isNotEmpty
+                                    ? Chip(
+                                        label: Text(images.length.toString() +
+                                            ' images'),
+                                        deleteIcon: Icon(Icons.clear),
+                                        onDeleted: () {
+                                          images.clear();
+                                          setState(() {});
+                                        },
+                                      )
+                                    : SizedBox.shrink(),
 
-                              SizedBox(width: 8.0),
+                                SizedBox(width: 8.0),
 
-                              // videos
-                              videos.isNotEmpty
-                                  ? Chip(
-                                      label: Text(
-                                          videos.length.toString() + ' videos'),
-                                      deleteIcon: Icon(Icons.clear),
-                                      onDeleted: () {
-                                        videos.clear();
-                                        setState(() {});
-                                      },
-                                    )
-                                  : SizedBox.shrink(),
+                                // videos
+                                videos.isNotEmpty
+                                    ? Chip(
+                                        label: Text(videos.length.toString() +
+                                            ' videos'),
+                                        deleteIcon: Icon(Icons.clear),
+                                        onDeleted: () {
+                                          videos.clear();
+                                          setState(() {});
+                                        },
+                                      )
+                                    : SizedBox.shrink(),
 
-                              SizedBox(width: 8.0),
+                                SizedBox(width: 8.0),
 
-                              // documents
-                              documents.isNotEmpty
-                                  ? Chip(
-                                      label: Text(documents.length.toString() +
-                                          ' documents'),
-                                      deleteIcon: Icon(Icons.clear),
-                                      onDeleted: () {
-                                        documents.clear();
-                                        setState(() {});
-                                      },
-                                    )
-                                  : SizedBox.shrink(),
-                            ],
+                                // documents
+                                documents.isNotEmpty
+                                    ? Chip(
+                                        label: Text(
+                                            documents.length.toString() +
+                                                ' documents'),
+                                        deleteIcon: Icon(Icons.clear),
+                                        onDeleted: () {
+                                          documents.clear();
+                                          setState(() {});
+                                        },
+                                      )
+                                    : SizedBox.shrink(),
+                              ],
+                            ),
+                          ),
+
+                    // textfield and send message button
+                    Row(
+                      children: [
+                        // add media button
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: GestureDetector(
+                            child: CircleAvatar(
+                              backgroundColor: Colors.grey[200],
+                              child: Icon(
+                                CupertinoIcons.link,
+                                color: Colors.black,
+                              ),
+                            ),
+                            onTap: openBottomSheet,
                           ),
                         ),
 
-                  // textfield and send message button
-                  Row(
-                    children: [
-                      // add media button
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: GestureDetector(
-                          child: CircleAvatar(
-                            backgroundColor: Colors.grey[200],
-                            child: Icon(
-                              CupertinoIcons.link,
-                              color: Colors.black,
+                        // textfield
+                        Expanded(
+                            child: Container(
+                          child: TextField(
+                            controller: _controller,
+                            onChanged: (value) {
+                              setState(() {
+                                message = value;
+                              });
+                            },
+                            maxLines: null,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: InputDecoration(
+                              hintText: 'Enter message here',
+                              hintStyle: TextStyle(color: Colors.blue),
+                              fillColor: Theme.of(context)
+                                  .inputDecorationTheme
+                                  .fillColor,
+                              filled: true,
+                              contentPadding: EdgeInsets.only(
+                                  top: 15.0, bottom: 15.0, left: 25.0),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
                             ),
                           ),
-                          onTap: openBottomSheet,
-                        ),
-                      ),
+                        )),
 
-                      // textfield
-                      Expanded(
-                          child: Container(
-                        child: TextField(
-                          controller: _controller,
-                          onChanged: (value) {
-                            setState(() {
-                              message = value;
-                            });
-                          },
-                          maxLines: null,
-                          textCapitalization: TextCapitalization.sentences,
-                          decoration: InputDecoration(
-                            hintText: 'Enter message here',
-                            hintStyle: TextStyle(color: Colors.blue),
-                            fillColor: Colors.white,
-                            filled: true,
-                            contentPadding: EdgeInsets.only(
-                                top: 15.0, bottom: 15.0, left: 25.0),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                          ),
-                        ),
-                      )),
-
-                      // send message button
-                      SendMessageButton(onPressed: () {
-                        if (_controller.text.trim().isNotEmpty ||
-                            (images + documents + videos).isNotEmpty) {
-                          sendMessage();
-                        } else {
-                          showSnackBar(
-                              message: "Can't send empty message",
-                              context: context);
-                        }
-                      })
-                    ],
-                  ),
-                ],
+                        // send message button
+                        SendMessageButton(onPressed: () {
+                          if (_controller.text.trim().isNotEmpty ||
+                              (images + documents + videos).isNotEmpty) {
+                            sendMessage();
+                          } else {
+                            showSnackBar(
+                                message: "Can't send empty message",
+                                context: context);
+                          }
+                        })
+                      ],
+                    ),
+                  ],
+                ),
               ),
             )
           ],

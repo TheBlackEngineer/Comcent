@@ -34,6 +34,7 @@ target 'Runner' do
   pod 'Firebase/Storage'
   pod 'Firebase/Auth'
   pod 'Firebase/Analytics'
+  pod 'Firebase/Messaging'
 
   use_frameworks!
   use_modular_headers!

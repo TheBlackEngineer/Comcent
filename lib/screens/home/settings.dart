@@ -1,3 +1,4 @@
+import 'package:comcent/widgets/theme_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:comcent/imports.dart';
@@ -14,96 +15,78 @@ class AccountSettings extends StatelessWidget {
         physics: BouncingScrollPhysics(),
         children: [
           SizedBox(height: 20.0),
-          // account icon
-          Column(
-            children: [
-              CircleAvatar(
-                child: Icon(Icons.person),
+
+          // Privacy
+          ListTile(
+              title: Text('Privacy'),
+              leading: CircleAvatar(
+                backgroundColor: Theme.of(context).primaryColor,
+                child: Icon(Feather.lock, color: Colors.white),
               ),
-              SizedBox(height: 8.0),
-              Text('Account',
-                  style: TextStyle(color: Theme.of(context).primaryColor))
-            ],
-          ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => PrivacyScreen(),
+                    ));
+              }),
 
-          // account actions
-          Column(
-            children: [
-              // privacy
-              ListTile(
-                  title:
-                      Text('Privacy', style: TextStyle(color: Colors.black54)),
-                  leading: CircleAvatar(
-                    child:
-                        Icon(Feather.lock, color: Colors.white),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => PrivacyScreen(),
-                        ));
-                  }),
+          // Edit profile
+          ListTile(
+              title: Text('Edit profile'),
+              leading: CircleAvatar(
+                backgroundColor: Theme.of(context).primaryColor,
+                child: Icon(AntDesign.edit, color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => EditProfile(),
+                    ));
+              }),
 
-              // edit profile
-              ListTile(
-                  title: Text('Edit profile',
-                      style: TextStyle(color: Colors.black54)),
-                  leading: CircleAvatar(
-                    child: Icon(AntDesign.edit, color: Colors.white),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => EditProfile(),
-                        ));
-                  }),
+          // Edit interests
+          ListTile(
+              title: Text('Edit interests'),
+              leading: CircleAvatar(
+                backgroundColor: Theme.of(context).primaryColor,
+                child: Icon(Icons.topic, color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => EditInterests(),
+                    ));
+              }),
 
-              // edit interests
-              ListTile(
-                  title: Text('Edit interests',
-                      style: TextStyle(color: Colors.black54)),
-                  leading: CircleAvatar(
-                    child: Icon(Icons.topic, color: Colors.white),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => EditInterests(),
-                        ));
-                  }),
-            ],
-          ),
+          // Choose theme
+          ListTile(
+              title: Text('Choose theme'),
+              leading: CircleAvatar(
+                backgroundColor: Theme.of(context).primaryColor,
+                child: const Icon(FontAwesome5Solid.moon, color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.push(context,
+                    CupertinoPageRoute(builder: (context) => ThemePage()));
+              }),
 
           Divider(),
           SizedBox(height: 20.0),
 
-          // account icon
-          Column(
-            children: [
-              CircleAvatar(
-                child: Icon(AntDesign.warning),
-              ),
-              SizedBox(height: 8.0),
-              Text('Other',
-                  style: TextStyle(color: Theme.of(context).primaryColor))
-            ],
-          ),
-
           // logout
           ListTile(
             leading: CircleAvatar(
-              child: Icon(AntDesign.logout),
+              backgroundColor: Theme.of(context).primaryColor,
+              child: Icon(AntDesign.logout, color: Colors.white),
             ),
-            title: Text('Log out', style: TextStyle(color: Colors.black54)),
+            title: Text('Log out'),
             onTap: () async {
               await controlLogout(context);
             },
           ),
-
-          Divider(),
         ],
       ),
     );

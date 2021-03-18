@@ -42,7 +42,7 @@ class _InterestsPageState extends State<InterestsPage> {
                   margin: const EdgeInsets.symmetric(vertical: 15.0),
                   child: Text(
                     'Choose at least one topic or interest to help us know you more',
-                    style: TextStyle(color: Colors.black45, fontSize: 18.0),
+                    style: TextStyle(fontSize: 18.0),
                   ),
                 ),
 
@@ -91,7 +91,7 @@ class _InterestsPageState extends State<InterestsPage> {
           // sign up/next button
           selectedIndexList.isNotEmpty
               ? SafeArea(
-                child: GradientButton(
+                  child: GradientButton(
                     label: provider.signingUpAsMember ? 'Sign Up' : 'Next',
                     onPressed: () {
                       provider.signingUpAsMember
@@ -103,12 +103,12 @@ class _InterestsPageState extends State<InterestsPage> {
                               ));
                     },
                   ),
-              )
+                )
               : SafeArea(
-                child: DeadButton(
+                  child: DeadButton(
                     label: provider.signingUpAsMember ? 'Sign Up' : 'Next',
                   ),
-              ),
+                ),
         ],
       ),
     );
@@ -135,6 +135,7 @@ class _InterestsPageState extends State<InterestsPage> {
     String profileUrl =
         provider.profileImage != null ? await uploadImage() : null;
 
+    // create the user's account
     dynamic result = await _authService.signUpWithEmailAndPassword(
       email: provider.email.trim(),
       password: provider.password,
@@ -144,7 +145,8 @@ class _InterestsPageState extends State<InterestsPage> {
       community: provider.community,
       subCommunity: provider.subCommunity,
       gender: provider.gender,
-      occupation: provider.occupation != null ? provider.occupation.trim() : null,
+      occupation:
+          provider.occupation != null ? provider.occupation.trim() : null,
       canPost: provider.signingUpAsMember ? true : false,
       dob: provider.dob,
       interests: provider.interests,
@@ -152,9 +154,30 @@ class _InterestsPageState extends State<InterestsPage> {
       referrer: null,
     );
 
+    // Get all posts that have a topic contained in the user's interests
+    // Then set the initial timeline for the user with these posts
+    provider.interests.forEach((interest) {
+      FirestoreService.postsCollection
+          .where('topic', isEqualTo: interest)
+          .get()
+          .then((querySnapshot) {
+        querySnapshot.docs.forEach((queryDocumentSnapshot) {
+          FirestoreService.timelineCollection
+              .doc(result.id)
+              .collection('feed')
+              .doc(queryDocumentSnapshot.id)
+              .set({
+            'topic': queryDocumentSnapshot.data()['topic'],
+            'timeOfUpload': queryDocumentSnapshot.data()['timeOfUpload'],
+            'isLeaderPost': queryDocumentSnapshot.data()['isLeaderPost'],
+          });
+        });
+      });
+    });
+
     if (result.toString().contains('null')) {
       setState(() {
-        String error = result.toString().split('-')[0];
+        String error = result.toString().split('-').first;
         EasyLoading.showError(
           error,
           dismissOnTap: true,
@@ -162,17 +185,7 @@ class _InterestsPageState extends State<InterestsPage> {
           maskType: EasyLoadingMaskType.black,
         );
       });
-    }
-
-    if (!result.toString().contains('null')) {
-      // add new user document to firestore
-      await FirestoreService.addMember(
-        person: Person(
-            id: result.id,
-            community: provider.community,
-            subCommunity: provider.subCommunity),
-      );
-
+    } else {
       int count = 0;
       Navigator.popUntil(context, (route) {
         return count++ == 4;

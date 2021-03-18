@@ -33,6 +33,11 @@
 	<string>This app needs permission to access your camera to take photos to be used for your community posts, club messages that contain images, and display pictures. Photos taken are used only in the app</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs permission to access your photos and videos to be used for your community posts, club messages that contain files, and display pictures. Photos and videos collected are used only in the app</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

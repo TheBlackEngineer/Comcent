@@ -59,9 +59,11 @@ class _ReferrerPageState extends State<ReferrerPage> {
             ),
 
             // sign up button
-            GradientButton(
-              label: 'Sign Up',
-              onPressed: () => _validateAndSignUp(),
+            SafeArea(
+              child: GradientButton(
+                label: 'Sign Up',
+                onPressed: () => _validateAndSignUp(),
+              ),
             )
           ],
         ),
@@ -133,6 +135,27 @@ class _ReferrerPageState extends State<ReferrerPage> {
           : null,
     );
 
+    // Get all posts that have a topic contained in the user's interests
+    // Then set the initial timeline for the user with these posts
+    provider.interests.forEach((interest) {
+      FirestoreService.postsCollection
+          .where('topic', isEqualTo: interest)
+          .get()
+          .then((querySnapshot) {
+        querySnapshot.docs.forEach((queryDocumentSnapshot) {
+          FirestoreService.timelineCollection
+              .doc(result.id)
+              .collection('feed')
+              .doc(queryDocumentSnapshot.id)
+              .set({
+            'topic': queryDocumentSnapshot.data()['topic'],
+            'timeOfUpload': queryDocumentSnapshot.data()['timeOfUpload'],
+            'isLeaderPost': queryDocumentSnapshot.data()['isLeaderPost'],
+          });
+        });
+      });
+    });
+
     if (result.toString().contains('null')) {
       setState(() {
         String error = result.toString().split('-')[0];
@@ -146,14 +169,6 @@ class _ReferrerPageState extends State<ReferrerPage> {
     }
 
     if (!result.toString().contains('null')) {
-      // add new user document to firestore
-      await FirestoreService.addMember(
-        person: Person(
-            id: result.id,
-            community: provider.community,
-            subCommunity: provider.subCommunity),
-      );
-
       // upload user proof of leadership document to firestore if any
       documentUrl != null
           ? FirestoreService.addDocument(Document(

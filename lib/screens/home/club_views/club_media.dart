@@ -16,6 +16,7 @@ class ClubMedia extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          brightness: Brightness.light,
           elevation: 0.0,
           backgroundColor: Colors.white,
           title: Text(

@@ -1,3 +1,5 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:comcent/providers/app_theme_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:comcent/imports.dart';
@@ -28,7 +30,7 @@ class _ClubInfoState extends State<ClubInfo> {
               : widget.club.name,
           context: context,
           onPressed: () => Navigator.pop(context)),
-      body: StreamBuilder<Object>(
+      body: StreamBuilder<DocumentSnapshot>(
           stream:
               FirestoreService.clubsCollection.doc(widget.club.id).snapshots(),
           builder: (context, snapshot) {
@@ -48,51 +50,62 @@ class _ClubInfoState extends State<ClubInfo> {
                     if (club.clubPhoto != null)
                       Hero(
                         tag: widget.club.clubPhoto,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey[350],
-                                offset: Offset(0.0, 5.0), //(x,y)
-                                blurRadius: 10.0,
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            radius: MediaQuery.of(context).size.width / 7.5,
-                            child: sampleImage == null
-                                ? GestureDetector(
-                                    child: CircularProfileAvatar(
-                                      club.clubPhoto,
+                        child: Consumer<AppThemeProvider>(
+                          builder: (context, value, child) => Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow:
+                                  value.savedTheme == AdaptiveThemeMode.light
+                                      ? [
+                                          BoxShadow(
+                                            color: Colors.grey[350],
+                                            offset: Offset(0.0, 5.0), //(x,y)
+                                            blurRadius: 10.0,
+                                          ),
+                                        ]
+                                      : [],
+                            ),
+                            child: CircleAvatar(
+                              radius: MediaQuery.of(context).size.width / 7.5,
+                              child: sampleImage == null
+                                  ? GestureDetector(
+                                      child: CircularProfileAvatar(
+                                        club.clubPhoto,
+                                        radius:
+                                            MediaQuery.of(context).size.width /
+                                                7.5,
+                                      ),
+                                      onTap: () => Navigator.push(
+                                          context,
+                                          TransparentCupertinoPageRoute(
+                                              builder: (context) => ImageView(
+                                                    imageUrl: club.clubPhoto,
+                                                  ))),
+                                    )
+                                  : CircularProfileAvatar(
+                                      '',
                                       radius:
                                           MediaQuery.of(context).size.width /
                                               7.5,
+                                      child: Image.file(
+                                        sampleImage,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                    onTap: () => Navigator.push(
-                                        context,
-                                        TransparentCupertinoPageRoute(
-                                            builder: (context) => ImageView(
-                                                  imageUrl: club.clubPhoto,
-                                                ))),
-                                  )
-                                : CircularProfileAvatar(
-                                    '',
-                                    radius:
-                                        MediaQuery.of(context).size.width / 7.5,
-                                    child: Image.file(
-                                      sampleImage,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                            ),
                           ),
                         ),
                       )
                     else
                       sampleImage == null
                           ? CircleAvatar(
+                              backgroundColor: Theme.of(context).primaryColor,
                               radius: MediaQuery.of(context).size.width / 7.5,
-                              child: Icon(Icons.group, size: 60.0),
+                              child: Icon(
+                                Icons.group,
+                                size: 60.0,
+                                color: Colors.white,
+                              ),
                             )
                           : CircularProfileAvatar(
                               '',
@@ -105,7 +118,7 @@ class _ClubInfoState extends State<ClubInfo> {
 
                     SizedBox(height: 13.0),
 
-                    // tap to change
+                    // Tap to change
                     widget.club.administrators.contains(user.uid)
                         ? ArgonButton(
                             elevation: 0.0,
@@ -144,7 +157,7 @@ class _ClubInfoState extends State<ClubInfo> {
                   ],
                 ),
 
-                // club name
+                // Club name
                 ClubInfoItem(
                   body: club.name,
                   header: 'Club Name',
@@ -167,7 +180,7 @@ class _ClubInfoState extends State<ClubInfo> {
                                     },
                                   ),
                                   actions: <Widget>[
-                                    // cancel
+                                    // Cancel
                                     FlatButton(
                                       textColor: Theme.of(context).primaryColor,
                                       child: Text('Cancel'),
@@ -176,7 +189,7 @@ class _ClubInfoState extends State<ClubInfo> {
                                       },
                                     ),
 
-                                    // save
+                                    // Save
                                     FlatButton(
                                       color: Theme.of(context).primaryColor,
                                       textColor: Colors.white,
@@ -368,7 +381,10 @@ class _ClubInfoState extends State<ClubInfo> {
                                               20,
                                     )
                                   : CircleAvatar(
-                                      child: Icon(Icons.person),
+                                      backgroundColor:
+                                          Theme.of(context).primaryColor,
+                                      child: Icon(Icons.person,
+                                          color: Colors.white),
                                     ),
                               title: Row(
                                 children: [
@@ -632,7 +648,7 @@ class ClubInfoItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // header
+          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -666,7 +682,7 @@ class ClubInfoItem extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Text(

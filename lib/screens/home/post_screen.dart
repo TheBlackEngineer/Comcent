@@ -33,6 +33,19 @@ class _PostScreenState extends State<PostScreen> {
 
   List<String> _topics = topics;
 
+  List<QueryDocumentSnapshot> userFollowers = [];
+  // Get the user's followers
+  void getFollowers() async {
+    QuerySnapshot querySnapshot = await FirestoreService.followersCollection
+        .doc(user.uid)
+        .collection('followers')
+        .get();
+    List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.docs;
+    setState(() {
+      this.userFollowers = documentSnapshots;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -56,20 +69,21 @@ class _PostScreenState extends State<PostScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        centerTitle: true,
-        elevation: 0.0,
-        backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
+          icon: Icon(Icons.arrow_back,
+              color: Theme.of(context).textSelectionColor),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Create a post',
-            style: TextStyle(color: Theme.of(context).primaryColor)),
+        title: GestureDetector(
+          child: Text(
+              (this.postBody.isEmpty && this.title.isEmpty)
+                  ? 'Create a post'
+                  : 'Hide keyboard',
+              style: TextStyle(color: Theme.of(context).primaryColor)),
+          onTap: () => FocusScope.of(context).unfocus(),
+        ),
         actions: [
-          FlatButton(
+          TextButton(
             onPressed: () async {
               if (_provider.person.canPost &&
                   title.isNotEmpty &&
@@ -112,19 +126,19 @@ class _PostScreenState extends State<PostScreen> {
         children: [
           Column(
             children: [
-              // show banner to user's who aren't allowed to make a post
+              // Show banner to user's who aren't allowed to make a post
               canPost && shouldShowBanner
                   ? buildMaterialBanner()
                   : SizedBox.shrink(),
 
-              // user name, text field, profile picture
+              // User name, text field, profile picture
               Expanded(
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: ListView(
                     physics: BouncingScrollPhysics(),
                     children: [
-                      // profile image and user name
+                      // Profile image and user name
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: _provider.person.profilePhoto != null
@@ -155,17 +169,17 @@ class _PostScreenState extends State<PostScreen> {
                         },
                       ),
 
-                      // post title and topic selection
+                      // Post title and topic selection
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // title
+                            // Post title
                             Flexible(
                               child: Container(
                                 decoration: BoxDecoration(
-                                    color: Colors.grey[300],
+                                    color: Theme.of(context).dividerColor,
                                     borderRadius: BorderRadius.circular(10.0)),
                                 child: Padding(
                                   padding:
@@ -190,23 +204,16 @@ class _PostScreenState extends State<PostScreen> {
                                             textCapitalization:
                                                 TextCapitalization.sentences,
                                             controller: _titleController,
-                                            validator: (value) => _provider
-                                                    .person.isLeader
-                                                ? null
-                                                : (value.contains('We') ||
-                                                        value.contains('Our'))
-                                                    ? null
-                                                    : "Start with 'We' or 'Our'",
+                                            validator: (value) => value.isEmpty
+                                                ? 'Please provide a title'
+                                                : null,
                                             maxLines: null,
                                             style: TextStyle(
                                                 fontSize: 18.0,
                                                 fontWeight: FontWeight.bold),
                                             decoration:
                                                 InputDecoration.collapsed(
-                                              hintText: _provider
-                                                      .person.isLeader
-                                                  ? 'Title'
-                                                  : "#Start with 'We' or 'Our'",
+                                              hintText: 'Title',
                                               hintStyle: TextStyle(
                                                   fontWeight:
                                                       FontWeight.normal),
@@ -225,13 +232,13 @@ class _PostScreenState extends State<PostScreen> {
                               ),
                             ),
 
-                            // topic
+                            // Post topic
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 5.0),
                               child: Container(
                                 decoration: BoxDecoration(
-                                    color: Colors.grey[300],
+                                    color: Theme.of(context).dividerColor,
                                     borderRadius: BorderRadius.circular(10.0)),
                                 padding: EdgeInsets.symmetric(horizontal: 5.0),
                                 child: DropDown(
@@ -250,7 +257,7 @@ class _PostScreenState extends State<PostScreen> {
                         ),
                       ),
 
-                      // post body
+                      // Post body
                       TextFormField(
                         textCapitalization: TextCapitalization.sentences,
                         controller: _controller,
@@ -275,7 +282,7 @@ class _PostScreenState extends State<PostScreen> {
                 ),
               ),
 
-              // media actions
+              // Media actions
               Container(
                 margin: const EdgeInsets.only(bottom: 16.0, top: 5.0),
                 child: images.isEmpty && videos.isEmpty
@@ -360,9 +367,10 @@ class _PostScreenState extends State<PostScreen> {
             ],
           ),
 
-          // sliding up panel
+          // Sliding up panel
           SlidingUpPanel(
-            minHeight: 50.0,
+            color: Theme.of(context).scaffoldBackgroundColor,
+            minHeight: 65.0,
             maxHeight: 290.0,
             backdropEnabled: true,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
@@ -392,7 +400,7 @@ class _PostScreenState extends State<PostScreen> {
 
                 SizedBox(height: 30.0),
 
-                // take a photo
+                // Take a photo
                 CustomListTile(
                   iconData: CupertinoIcons.camera,
                   label: 'Camera',
@@ -551,8 +559,6 @@ class _PostScreenState extends State<PostScreen> {
 
   // upload method for File objects
   Future uploadPost() async {
-    List visibleTo = _provider.person.followers + [user.uid];
-
     if (images.isNotEmpty) {
       // upload images first
       for (int i = 0; i < images.length; i++) {
@@ -583,20 +589,51 @@ class _PostScreenState extends State<PostScreen> {
       ownerID: user.uid,
       postID: randomPostID,
       community: _provider.person.community,
-      comments: [],
-      visibleTo: visibleTo,
-      usersWhoLiked: [],
-      bookmarkedBy: [],
+      comments: 0,
+      approvals: 0,
+      timeOfUpload: Timestamp.now(),
+      isLeaderPost: _provider.person.isLeader,
     );
 
+    // FirestoreService instance
     FirestoreService firestoreService = FirestoreService(uid: user.uid);
 
-    await firestoreService.addPost(post: post);
-
+    // Add a bookmark reference for this post to the bookmarks collection
     await FirestoreService.bookmarksCollection
         .doc(randomPostID)
         .set({'usersWhoBookmarked': []});
 
-    return firestoreService.addToUserPosts(post: post);
+    // Add post to posts collection
+    await firestoreService.addPost(post: post);
+
+    // Add the post to the post owner's timeline
+    await FirestoreService.timelineCollection
+        .doc(user.uid)
+        .collection('feed')
+        .doc(post.postID)
+        .set({
+      'topic': post.topic,
+      'timeOfUpload': post.timeOfUpload,
+      'isLeaderPost': _provider.person.isLeader,
+    });
+
+    // Add this new post to the timeline of his followers
+    if (this.userFollowers.isNotEmpty) {
+      for (var userSnapshot in this.userFollowers) {
+        FirestoreService.timelineCollection
+            .doc(userSnapshot.id)
+            .collection('feed')
+            .doc(post.postID)
+            .set({
+          'topic': post.topic,
+          'timeOfUpload': post.timeOfUpload,
+          'isLeaderPost': _provider.person.isLeader,
+        }).then((value) => print('A document was added to user timeline'));
+      }
+    }
+
+    // Update user post count
+    return await firestoreService.updateUserPostcount(
+        post: post, action: 'New post');
   }
 }

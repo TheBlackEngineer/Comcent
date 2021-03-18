@@ -68,10 +68,10 @@ class _RulesViewState extends State<RulesView> {
 
   @override
   void dispose() {
-    super.dispose();
     controller.dispose();
     controllers.forEach((controller) {
       controller.dispose();
+      super.dispose();
     });
   }
 

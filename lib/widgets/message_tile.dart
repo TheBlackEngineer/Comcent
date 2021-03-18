@@ -59,12 +59,14 @@ class _MessageTileState extends State<MessageTile> {
                     menuItems: <FocusedMenuItem>[
                       // copy to clipboard
                       FocusedMenuItem(
-                        title: Text(widget.message.type != MessageType.Normal
-                            ? 'Copy link'
-                            : 'Copy'),
+                        title: Text(
+                          widget.message.type != MessageType.Normal
+                              ? 'Copy link'
+                              : 'Copy',
+                          style: TextStyle(color: Colors.black),
+                        ),
                         trailingIcon: Icon(
                           Icons.paste,
-                          //color: Colors.redAccent,
                         ),
                         onPressed: () => Clipboard.setData(
                           ClipboardData(text: widget.message.messageBody),
@@ -107,7 +109,7 @@ class _MessageTileState extends State<MessageTile> {
                     menuOffset: 10.0,
                     menuBoxDecoration: BoxDecoration(
                         color: Colors.grey,
-                        borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                        borderRadius: BorderRadius.all(Radius.circular(80.0))),
                     duration: Duration(milliseconds: 100),
                     onPressed: () {},
                     child: buildMessageContent(
@@ -115,12 +117,14 @@ class _MessageTileState extends State<MessageTile> {
                     menuItems: <FocusedMenuItem>[
                       // copy to clipboard
                       FocusedMenuItem(
-                        title: Text(widget.message.type == MessageType.Normal
-                            ? 'Copy'
-                            : 'Copy link'),
+                        title: Text(
+                          widget.message.type == MessageType.Normal
+                              ? 'Copy'
+                              : 'Copy link',
+                          style: TextStyle(color: Colors.black),
+                        ),
                         trailingIcon: Icon(
                           Icons.paste,
-                          //color: Colors.redAccent,
                         ),
                         onPressed: () => Clipboard.setData(
                           ClipboardData(text: widget.message.messageBody),
@@ -138,7 +142,7 @@ class _MessageTileState extends State<MessageTile> {
   buildMessageContent(Message message, bool isMe, String formattedTime) {
     if (message.type == MessageType.Normal) {
       Widget textMessageWidget = Padding(
-        padding: const EdgeInsets.only(left: 12.0, top: 12.0, bottom: 12.0),
+        padding: const EdgeInsets.only(left: 12.0, top: 3.0, bottom: 3.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.min,
@@ -196,7 +200,7 @@ class _MessageTileState extends State<MessageTile> {
               ),
             ),
 
-            // time sent
+            // Time sent
             Positioned(
               child: Text(
                 formattedTime.toLowerCase().split(' ').first +
@@ -358,7 +362,7 @@ class MessageBodyAndTime extends StatelessWidget {
       constraints:
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 1.5),
       child: SpeechBubble(
-        borderRadius: 0.0,
+        borderRadius: 8.0,
         nipLocation: isMe ? NipLocation.RIGHT : NipLocation.LEFT,
         color: isMe ? Colors.white : Colors.teal[800],
         child: Stack(

@@ -31,12 +31,12 @@ class _PreHomeState extends State<PreHome> {
         },
         items: [
           FlashyTabBarItem(
-              icon: Icon(Octicons.home),
+              icon: Icon(AntDesign.home),
               title: Text('Community'),
               activeColor: Theme.of(context).primaryColor,
               inactiveColor: Colors.grey),
           FlashyTabBarItem(
-              icon: Icon(Ionicons.chatbox),
+              icon: Icon(MaterialCommunityIcons.cards_club),
               title: Text('Clubs'),
               activeColor: Theme.of(context).primaryColor,
               inactiveColor: Colors.grey),

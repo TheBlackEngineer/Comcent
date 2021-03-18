@@ -17,19 +17,15 @@ class CustomListTile extends StatelessWidget {
           children: [
             // icon
             CircleAvatar(
-              backgroundColor: Colors.grey[200],
               radius: 25.0,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Center(
-                  child: Icon(
-                    iconData,
-                    color: Colors.black,
-                  ),
+                  child: Icon(iconData),
                 ),
               ),
             ),
-            
+
             // spacer
             SizedBox(width: 12.0),
 

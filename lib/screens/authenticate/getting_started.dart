@@ -15,6 +15,16 @@ class _GettingStartedState extends State<GettingStarted> {
   SubCommunity community;
   Color radioColor = Colors.transparent;
 
+  // Open available communities page
+  void _launchURL() async {
+    const url = 'http://www.comcentlimited.com/available-communities';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     CommunityProvider provider =
@@ -62,7 +72,7 @@ class _GettingStartedState extends State<GettingStarted> {
                           });
                         },
                         decoration: textInputDecoration.copyWith(
-                            hintText: 'Search communities'),
+                            hintText: 'eg: Legon Hall'),
                       ),
 
                       // search results
@@ -159,9 +169,25 @@ class _GettingStartedState extends State<GettingStarted> {
                               : Padding(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 20.0),
-                                  child: Text(
-                                      "Sorry, '${controller.text}' has not been launched yet 😢",
-                                      style: TextStyle(fontSize: 18.0)),
+                                  child: RichText(
+                                    text: TextSpan(
+                                        text:
+                                            "Sorry, '${controller.text}' has not been launched yet 😢. ",
+                                        style: TextStyle(
+                                            color: Colors.grey, fontSize: 18.0),
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                              text: ' Learn more',
+                                              style: TextStyle(
+                                                color: Colors.blue,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                fontSize: 18,
+                                              ),
+                                              recognizer: TapGestureRecognizer()
+                                                ..onTap = () => _launchURL())
+                                        ]),
+                                  ),
                                 )
                           : SizedBox.shrink()
                     ],
@@ -174,7 +200,7 @@ class _GettingStartedState extends State<GettingStarted> {
           // next
           this.community != null && controller.text.isNotEmpty
               ? SafeArea(
-                child: GradientButton(
+                  child: GradientButton(
                     label: 'Next',
                     onPressed: () {
                       // go to forms
@@ -185,7 +211,7 @@ class _GettingStartedState extends State<GettingStarted> {
                           ));
                     },
                   ),
-              )
+                )
               : SafeArea(child: DeadButton(label: 'Next'))
         ],
       ),

@@ -114,8 +114,7 @@ class _AddProfileImageState extends State<AddProfileImage> {
                             sampleImage == null
                                 ? 'Upload profile picture'
                                 : 'Change',
-                            style: TextStyle(
-                                color: Colors.black45, fontSize: 15.0),
+                            style: TextStyle(fontSize: 15.0),
                           ),
                         ),
                       ),
@@ -135,8 +134,8 @@ class _AddProfileImageState extends State<AddProfileImage> {
                       CupertinoPageRoute(
                         builder: (context) => InterestsPage(),
                       ));
-                  Provider.of<SignUpModel>(context, listen: false).profileImage =
-                      sampleImage;
+                  Provider.of<SignUpModel>(context, listen: false)
+                      .profileImage = sampleImage;
                 }),
           )
         ],

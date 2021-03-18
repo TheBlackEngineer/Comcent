@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Person {
+  final int posts, numberOfWeOurPosts;
   final String id,
       firstName,
       lastName,
@@ -13,11 +14,13 @@ class Person {
       occupation,
       referrer,
       profilePhoto;
-  final List followers, following, posts, interests;
+  final List interests;
   final bool isLeader, canPost, privateProfile;
   final Timestamp dateJoined, dob;
 
   Person({
+    this.posts,
+    this.numberOfWeOurPosts,
     this.id,
     this.firstName,
     this.lastName,
@@ -28,9 +31,6 @@ class Person {
     this.subCommunity,
     this.gender,
     this.occupation,
-    this.followers,
-    this.following,
-    this.posts,
     this.interests,
     this.referrer,
     this.profilePhoto,
@@ -51,10 +51,9 @@ class Person {
       bio: documentSnapshot.data()['bio'],
       community: documentSnapshot.data()['community'],
       subCommunity: documentSnapshot.data()['subCommunity'],
-      followers: documentSnapshot.data()['followers'] ?? [],
-      following: documentSnapshot.data()['following'] ?? [],
-      posts: documentSnapshot.data()['posts'] ?? [],
       interests: documentSnapshot.data()['interests'] ?? [],
+      posts: documentSnapshot.data()['posts'],
+      numberOfWeOurPosts: documentSnapshot.data()['numberOfWeOurPosts'],
       profilePhoto: documentSnapshot.data()['profilePhoto'],
       referrer: documentSnapshot.data()['referrer'],
       occupation: documentSnapshot.data()['occupation'],
@@ -67,8 +66,35 @@ class Person {
     );
   }
 
+  static Person fromMap(Map<String, dynamic> map) {
+    return Person(
+      posts: map['posts'],
+      numberOfWeOurPosts: map['numberOfWeOurPosts'],
+      id: map['id'],
+      firstName: map['firstName'],
+      lastName: map['lastName'],
+      phone: map['phone'],
+      email: map['email'],
+      bio: map['bio'],
+      subCommunity: map['subCommunity'],
+      community: map['community'],
+      interests: map['interests'],
+      profilePhoto: map['profilePhoto'],
+      referrer: map['referrer'],
+      occupation: map['occupation'],
+      gender: map['gender'],
+      dob: map['dob'],
+      isLeader: map['isLeader'],
+      canPost: map['canPost'],
+      privateProfile: map['privateProfile'],
+      dateJoined: map['dateJoined'],
+    );
+  }
+
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
+      'posts': posts,
+      'numberOfWeOurPosts': numberOfWeOurPosts,
       'id': id,
       'firstName': firstName,
       'lastName': lastName,
@@ -77,9 +103,6 @@ class Person {
       'bio': bio,
       'community': community,
       'subCommunity': subCommunity,
-      'followers': followers,
-      'following': following,
-      'posts': posts,
       'interests': interests,
       'referrer': referrer,
       'profilePhoto': profilePhoto,

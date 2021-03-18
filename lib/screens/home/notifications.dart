@@ -127,13 +127,25 @@ class NotificationItem extends StatelessWidget {
             child: RichText(
               maxLines: null,
               text: TextSpan(
-                style: TextStyle(color: Colors.black, fontSize: 17.0),
+                style: TextStyle(fontSize: 17.0),
                 children: [
+                  // Name of notification owner
                   TextSpan(
                     text: username,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textSelectionColor,
+                    ),
                   ),
-                  TextSpan(text: ' $notificationItemText  -  '),
+
+                  // Notification body
+                  TextSpan(
+                    text: ' $notificationItemText  -  ',
+                    style:
+                        TextStyle(color: Theme.of(context).textSelectionColor),
+                  ),
+
+                  // Days ago
                   TextSpan(
                     text: timeago.format(timestamp.toDate()),
                     style: TextStyle(
@@ -160,6 +172,7 @@ class NotificationItem extends StatelessWidget {
                               backgroundImage: CachedNetworkImageProvider(
                                   person.profilePhoto))
                           : CircleAvatar(
+                              backgroundColor: Theme.of(context).primaryColor,
                               child: Icon(Icons.person, color: Colors.white),
                             ),
                       onTap: () => Navigator.push(

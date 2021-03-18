@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:comcent/imports.dart';
 
@@ -9,9 +10,31 @@ class EditInterests extends StatefulWidget {
 class _EditInterestsState extends State<EditInterests> {
   User user;
   Future<Person> _data;
-
   List topicsToBeSaved = [];
   List yourInterests = [];
+  List<QueryDocumentSnapshot> postSnapshots = [];
+  List<QueryDocumentSnapshot> timelineSnapshots = [];
+
+  // Get user timeline posts
+  void getUserTimelinePosts() async {
+    QuerySnapshot querySnapshot = await FirestoreService.timelineCollection
+        .doc(user.uid)
+        .collection('feed')
+        .get();
+    List<QueryDocumentSnapshot> queryDocSnaps = querySnapshot.docs;
+    setState(() {
+      this.timelineSnapshots = queryDocSnaps;
+    });
+  }
+
+  // Get posts
+  void getPosts() async {
+    QuerySnapshot querySnapshot = await FirestoreService.postsCollection.get();
+    List<QueryDocumentSnapshot> queryDocSnaps = querySnapshot.docs;
+    setState(() {
+      this.postSnapshots = queryDocSnaps;
+    });
+  }
 
   Future<Person> getPerson() async {
     Person person = await FirestoreService(
@@ -27,36 +50,44 @@ class _EditInterestsState extends State<EditInterests> {
   void initState() {
     super.initState();
     _data = getPerson();
+    getPosts();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    user = Provider.of<User>(context);
+    getUserTimelinePosts();
   }
 
   @override
   Widget build(BuildContext context) {
-    user = Provider.of<User>(context);
     return Scaffold(
         appBar: AppBar(
           title: Text(
             'Edit interests',
             style: TextStyle(color: Theme.of(context).primaryColor),
           ),
-          elevation: 0.0,
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back),
+            color: Theme.of(context).textSelectionColor,
             onPressed: () => (Navigator.pop(context)),
           ),
           actions: [
             FlatButton(
-                onPressed: updateUserInterests,
-                child: Text('Save',
-                    style: TextStyle(color: Theme.of(context).primaryColor)))
+              onPressed: updateUserInterests,
+              child: Text(
+                'Save',
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+            )
           ],
         ),
         body: FutureBuilder<Person>(
             future: _data,
             builder: (context, snapshot) {
               if (!snapshot.hasData)
-                return Center(child: CircularProgressIndicator());
+                return Center(child: CupertinoActivityIndicator());
 
               return ListView(
                 physics: BouncingScrollPhysics(),
@@ -174,7 +205,42 @@ class _EditInterestsState extends State<EditInterests> {
         status: 'Updating interests',
         maskType: EasyLoadingMaskType.black,
         dismissOnTap: true);
+
     List finalList = (topicsToBeSaved + yourInterests).toSet().toList();
+
+    List<QueryDocumentSnapshot> postsToAddToTimeline = this
+        .postSnapshots
+        .where((snapshot) => finalList.contains(snapshot.data()['topic']))
+        .toList();
+
+    // Delete all posts where their topic was removed from the user's interests
+    timelineSnapshots.forEach((snapshot) {
+      if (!finalList.contains(snapshot.data()['topic'])) {
+        FirestoreService.timelineCollection
+            .doc(user.uid)
+            .collection('feed')
+            .doc(snapshot.id)
+            .delete()
+            .then((value) => print('A documents was deleted'));
+      }
+    });
+
+    // Add all posts whose topic was added to the user's interests
+    if (postsToAddToTimeline.isNotEmpty) {
+      postsToAddToTimeline.forEach((snapshot) {
+        FirestoreService.timelineCollection
+            .doc(user.uid)
+            .collection('feed')
+            .doc(snapshot.id)
+            .set({
+          'topic': snapshot.data()['topic'],
+          'timeOfUpload': snapshot.data()['timeOfUpload'],
+          'isLeaderPost': snapshot.data()['isLeaderPost'],
+        }).then((value) => print('A document was added'));
+      });
+    }
+
+    // Update the user's interests
     FirestoreService.usersCollection
         .doc(user.uid)
         .update({'interests': finalList}).then((value) {

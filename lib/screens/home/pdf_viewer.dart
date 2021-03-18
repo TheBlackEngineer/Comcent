@@ -9,6 +9,7 @@ class PDFScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.light,
         elevation: 0.0,
         title: Text("Document", style: TextStyle(color: Colors.black)),
         leading: IconButton(

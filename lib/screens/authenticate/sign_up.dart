@@ -59,7 +59,8 @@ class _SignUpState extends State<SignUp> {
               children: [
                 // sign up as a community
                 Text(
-                  'Sign up as a community' + (showMemberScreen ? ' member' : ' leader'),
+                  'Sign up as a community' +
+                      (showMemberScreen ? ' member' : ' leader'),
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 15.0,
@@ -184,7 +185,6 @@ class _MemberFormState extends State<MemberForm> {
             children: [
               // first name
               TextFormField(
-                keyboardType: TextInputType.name,
                 textCapitalization: TextCapitalization.words,
                 decoration: textInputDecoration.copyWith(
                   hintText: 'First name*',
@@ -200,7 +200,6 @@ class _MemberFormState extends State<MemberForm> {
 
               // last name
               TextFormField(
-                keyboardType: TextInputType.name,
                 textCapitalization: TextCapitalization.words,
                 decoration: textInputDecoration.copyWith(
                   hintText: 'Last name*',

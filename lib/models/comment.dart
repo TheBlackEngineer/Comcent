@@ -32,6 +32,20 @@ class Comment {
     );
   }
 
+  static Comment fromMap(Map<String, dynamic> map) {
+    return Comment(
+      body: map['body'],
+      ownerID: map['ownerID'],
+      commentID: map['commentID'],
+      masterCommentID: map['masterCommentID'],
+      postID: map['postID'],
+      replies: map['replies'],
+      likes: map['likes'],
+      isReply: map['isReply'],
+      timeOfUpload: map['timeOfUpload'],
+    );
+  }
+
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'body': body,

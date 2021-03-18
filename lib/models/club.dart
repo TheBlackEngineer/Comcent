@@ -45,6 +45,23 @@ class Club {
     );
   }
 
+  static Club fromMap(Map<String, dynamic> map) {
+    return Club(
+      id: map['id'],
+      master: map['master'],
+      name: map['name'],
+      clubPhoto: map['clubPhoto'],
+      description: map['description'],
+      creator: map['creator'],
+      members: map['members'],
+      administrators: map['administrators'],
+      removedMembers: map['removedMembers'],
+      membershipRequests: map['membershipRequests'],
+      clubRules: map['clubRules'],
+      dateCreated: map['dateCreated'],
+    );
+  }
+
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
       'id': id,
